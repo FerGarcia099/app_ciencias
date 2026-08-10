@@ -1,0 +1,843 @@
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Comic Sans MS", Arial, sans-serif;
+}
+
+/* ============================= */
+/* LOGIN */
+/* ============================= */
+
+.login-page {
+  width: 100%;
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: linear-gradient(
+    45deg,
+    #ff9a9e,
+    #fad0c4,
+    #fbc2eb,
+    #a6c1ee
+  );
+}
+
+.login-card {
+  width: 380px;
+  max-width: 90%;
+
+  background: white;
+  padding: 45px 30px;
+
+  border-radius: 20px;
+  text-align: center;
+
+  box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.2);
+
+  box-sizing: border-box;
+  animation: aparecer 0.5s ease;
+}
+
+.login-card h1 {
+  margin-bottom: 30px;
+  font-size: 32px;
+  color: #000;
+}
+
+.login-card input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+
+  border-radius: 10px;
+  border: 2px solid skyblue;
+
+  font-size: 16px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.login-card input:focus {
+  border-color: orange;
+}
+
+.login-card button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+
+  background: orange;
+  border: none;
+  border-radius: 10px;
+
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.login-card button:hover {
+  background: red;
+  transform: scale(1.05);
+}
+
+.login-card h3 {
+  margin-top: 18px;
+  font-size: 16px;
+  color: #e74c3c;
+}
+
+/* ============================= */
+/* ANIMACIÓN */
+/* ============================= */
+
+@keyframes aparecer {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ============================= */
+/* CONTENIDO GENERAL */
+/* ============================= */
+
+.contenido {
+  margin-left: 240px;
+  padding: 40px;
+  min-height: 100vh;
+
+  background: linear-gradient(135deg, #fdfbfb, #ebedee);
+
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.contenido h1,
+.contenido h2 {
+  font-size: 32px;
+  margin-bottom: 30px;
+  color: #222;
+}
+
+/* ============================= */
+/* TARJETAS DE FORMULARIO */
+/* ============================= */
+
+.form-card {
+  width: 500px;
+  max-width: 90%;
+
+  background: white;
+  padding: 35px;
+  margin: 0 auto 30px auto;
+
+  border-radius: 20px;
+  box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.15);
+
+  text-align: center;
+  box-sizing: border-box;
+  animation: aparecer 0.5s ease;
+}
+
+.form-card h2 {
+  font-size: 30px;
+  margin-bottom: 25px;
+  color: #222;
+}
+
+.form-card input,
+.form-card select {
+  width: 100%;
+  padding: 13px;
+  margin-bottom: 15px;
+
+  border: 2px solid skyblue;
+  border-radius: 10px;
+
+  font-size: 16px;
+  box-sizing: border-box;
+  outline: none;
+  background: white;
+}
+
+.form-card input:focus,
+.form-card select:focus {
+  border-color: orange;
+}
+
+.select-rol {
+  cursor: pointer;
+}
+
+/* ============================= */
+/* BOTONES DE FORMULARIO */
+/* ============================= */
+
+.acciones-form {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.acciones-form button {
+  flex: 1;
+  padding: 13px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: orange;
+  color: white;
+
+  font-size: 16px;
+  font-weight: bold;
+
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.acciones-form button:hover {
+  background: red;
+  transform: scale(1.04);
+}
+
+.btn-regresar {
+  background: #2196f3 !important;
+}
+
+.btn-regresar:hover {
+  background: #0d47a1 !important;
+}
+
+/* ============================= */
+/* BOTONES GRANDES DEL PANEL */
+/* ============================= */
+
+.botones {
+  margin-top: 30px;
+}
+
+.btn {
+  width: 220px;
+  padding: 15px;
+  margin: 10px;
+
+  border: none;
+  border-radius: 15px;
+
+  font-size: 18px;
+  cursor: pointer;
+
+  background: linear-gradient(45deg, #4caf50, #2196f3);
+  color: white;
+
+  transition: 0.3s;
+}
+
+.btn:hover {
+  transform: scale(1.1);
+  background: linear-gradient(45deg, #ff9800, #ff5722);
+}
+
+/* ============================= */
+/* TARJETAS DE TABLAS */
+/* ============================= */
+
+.tabla-card {
+  width: 750px;
+  max-width: 95%;
+
+  background: white;
+  padding: 35px;
+  margin: 0 auto;
+
+  border-radius: 20px;
+  box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.15);
+
+  text-align: center;
+  box-sizing: border-box;
+  animation: aparecer 0.5s ease;
+}
+
+.tabla-card h2 {
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: #222;
+}
+
+.tabla-alumnos {
+  width: 100%;
+  margin-top: 20px;
+
+  border-collapse: collapse;
+  background: white;
+
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.tabla-alumnos th {
+  background: orange;
+  color: white;
+
+  padding: 14px;
+  font-size: 17px;
+}
+
+.tabla-alumnos td {
+  padding: 13px;
+
+  border-bottom: 1px solid #ddd;
+  font-size: 16px;
+}
+
+.tabla-alumnos tr:hover {
+  background: #f5f5f5;
+}
+
+.tabla-alumnos td[colspan="3"],
+.tabla-alumnos td[colspan="4"] {
+  color: #777;
+  font-style: italic;
+}
+
+/* ============================= */
+/* BOTÓN REGRESAR EN LISTAS */
+/* ============================= */
+
+.btn-regresar-lista {
+  background: #2196f3;
+  color: white;
+
+  border: none;
+  padding: 12px 20px;
+  margin-bottom: 25px;
+
+  border-radius: 10px;
+
+  font-size: 16px;
+  font-weight: bold;
+
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-regresar-lista:hover {
+  background: #0d47a1;
+  transform: scale(1.05);
+}
+
+/* ============================= */
+/* MÓDULO USUARIOS */
+/* ============================= */
+
+.usuarios-tabla {
+  margin-top: 30px;
+}
+
+.rol-maestro {
+  background: #2196f3;
+  color: white;
+
+  padding: 6px 12px;
+  border-radius: 12px;
+
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.rol-alumno {
+  background: #4caf50;
+  color: white;
+
+  padding: 6px 12px;
+  border-radius: 12px;
+
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+/* ============================= */
+/* RESPONSIVE */
+/* ============================= */
+
+@media (max-width: 768px) {
+  .contenido {
+    margin-left: 0;
+    padding: 25px;
+  }
+
+  .acciones-form {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 90%;
+  }
+
+  .tabla-card,
+  .form-card {
+    width: 100%;
+  }
+
+  .tabla-alumnos th,
+  .tabla-alumnos td {
+    font-size: 14px;
+    padding: 10px;
+  }
+}
+
+.textarea-contenido {
+  width: 100%;
+  min-height: 140px;
+  padding: 13px;
+  margin-bottom: 15px;
+
+  border: 2px solid skyblue;
+  border-radius: 10px;
+
+  font-size: 16px;
+  font-family: "Comic Sans MS", Arial, sans-serif;
+
+  box-sizing: border-box;
+  outline: none;
+  resize: vertical;
+}
+
+.textarea-contenido:focus {
+  border-color: orange;
+}
+
+.contenido-form {
+  margin-bottom: 30px;
+}
+
+.contenido-detalle-card {
+  width: 850px;
+  max-width: 95%;
+
+  background: white;
+  padding: 35px;
+  margin: 0 auto;
+
+  border-radius: 20px;
+  box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.15);
+
+  text-align: left;
+  box-sizing: border-box;
+  animation: aparecer 0.5s ease;
+}
+
+.contenido-detalle-card h2 {
+  text-align: center;
+  color: #222;
+}
+
+.contenido-detalle-card h3 {
+  color: #333;
+}
+
+.texto-contenido {
+  background: #f8f8f8;
+  padding: 20px;
+
+  border-radius: 15px;
+  line-height: 1.6;
+  white-space: pre-line;
+
+  font-size: 17px;
+}
+
+.pregunta-card {
+  background: #fdfbfb;
+  padding: 20px;
+  margin: 20px 0;
+
+  border-radius: 15px;
+  border-left: 6px solid orange;
+}
+
+.pregunta-card h3 {
+  margin-bottom: 15px;
+}
+
+.pregunta-card label {
+  display: block;
+  margin: 10px 0;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.pregunta-card input {
+  width: auto;
+  margin-right: 10px;
+}
+
+.resultado-card {
+  background: #4caf50;
+  color: white;
+
+  padding: 18px;
+  margin: 20px 0;
+
+  border-radius: 15px;
+  text-align: center;
+
+  font-size: 20px;
+  font-weight: bold;
+}
+
+
+/* ============================= */
+/* DASHBOARD DE CONTENIDOS MAESTRO */
+/* ============================= */
+
+.bienvenida-maestro {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.dashboard-contenidos {
+  width: 850px;
+  max-width: 95%;
+  margin: 45px auto 0 auto;
+
+  background: white;
+  padding: 25px;
+
+  border-radius: 18px;
+  box-shadow: 0px 0px 22px rgba(0, 0, 0, 0.15);
+
+  text-align: left;
+  animation: aparecer 0.5s ease;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 20px;
+}
+
+.dashboard-header h2 {
+  margin: 0;
+  font-size: 26px;
+  color: #222;
+}
+
+.dashboard-header button {
+  background: orange;
+  color: white;
+
+  border: none;
+  border-radius: 10px;
+
+  padding: 10px 15px;
+
+  font-size: 15px;
+  font-weight: bold;
+
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.dashboard-header button:hover {
+  background: red;
+  transform: scale(1.05);
+}
+
+.lista-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fila-contenido {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background: #f8f8f8;
+  padding: 14px 18px;
+
+  border-radius: 12px;
+  border-left: 6px solid orange;
+
+  transition: 0.3s;
+}
+
+.fila-contenido:hover {
+  background: #f1f1f1;
+  transform: scale(1.01);
+}
+
+.info-contenido {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.info-contenido strong {
+  font-size: 18px;
+  color: #222;
+}
+
+.info-contenido span {
+  font-size: 14px;
+  color: #555;
+}
+
+.fila-contenido button {
+  background: #2196f3;
+  color: white;
+
+  border: none;
+  border-radius: 10px;
+
+  padding: 10px 15px;
+
+  font-size: 15px;
+  font-weight: bold;
+
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.fila-contenido button:hover {
+  background: #0d47a1;
+  transform: scale(1.05);
+}
+
+.mensaje-vacio {
+  text-align: center;
+  color: #777;
+  font-size: 17px;
+}
+
+/* Cuadro donde se muestra el contenido */
+.detalle-contenido-dashboard {
+  width: 850px;
+  max-width: 95%;
+  margin: 25px auto 0 auto;
+
+  background: white;
+  padding: 25px;
+
+  border-radius: 18px;
+  box-shadow: 0px 0px 22px rgba(0, 0, 0, 0.15);
+
+  text-align: left;
+  animation: aparecer 0.5s ease;
+}
+
+.detalle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.detalle-header h3 {
+  font-size: 24px;
+  color: #222;
+  margin: 0;
+}
+
+.detalle-header button {
+  background: #ff4d4d;
+  color: white;
+
+  border: none;
+  border-radius: 8px;
+
+  padding: 7px 12px;
+
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.detalle-header button:hover {
+  background: #c62828;
+}
+
+.grado-badge {
+  display: inline-block;
+
+  background: #4caf50;
+  color: white;
+
+  padding: 7px 12px;
+  border-radius: 15px;
+
+  font-size: 14px;
+  font-weight: bold;
+
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.detalle-contenido-dashboard p {
+  background: #f8f8f8;
+  padding: 18px;
+
+  border-radius: 12px;
+
+  font-size: 16px;
+  line-height: 1.6;
+
+  color: #444;
+  white-space: pre-line;
+}
+
+.btn-agregar-preguntas {
+  background: orange;
+  color: white;
+
+  border: none;
+  border-radius: 10px;
+
+  padding: 12px 18px;
+
+  font-size: 16px;
+  font-weight: bold;
+
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-agregar-preguntas:hover {
+  background: red;
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .fila-contenido {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .fila-contenido button {
+    width: 100%;
+  }
+}
+
+
+/* ============================= */
+/* FORMULARIOS DE CONTENIDO A LA PAR */
+/* ============================= */
+
+.contenidos-doble-panel {
+  width: 100%;
+  max-width: 1150px;
+  margin: 0 auto 35px auto;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 30px;
+}
+
+.contenidos-doble-panel .form-card {
+  width: 50%;
+  max-width: 540px;
+  margin: 0;
+}
+
+.contenidos-doble-panel .textarea-contenido {
+  min-height: 135px;
+}
+
+@media (max-width: 1000px) {
+  .contenidos-doble-panel {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .contenidos-doble-panel .form-card {
+    width: 95%;
+    max-width: 540px;
+  }
+}
+
+/* ============================= */
+/* USUARIOS: FORMULARIO Y LISTA A LA PAR */
+/* ============================= */
+
+.usuarios-doble-panel {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 30px;
+}
+
+.usuarios-form {
+  width: 420px;
+  max-width: 420px;
+  margin: 0;
+}
+
+.usuarios-tabla {
+  width: 650px;
+  max-width: 650px;
+  margin: 0;
+}
+
+.usuarios-tabla table {
+  margin-top: 20px;
+}
+
+@media (max-width: 1100px) {
+  .usuarios-doble-panel {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .usuarios-form,
+  .usuarios-tabla {
+    width: 95%;
+    max-width: 700px;
+  }
+}
+
+.puntaje-pregunta {
+  display: inline-block;
+  margin-left: 10px;
+
+  background: orange;
+  color: white;
+
+  padding: 5px 10px;
+  border-radius: 12px;
+
+  font-size: 14px;
+  font-weight: bold;
+}
