@@ -8,10 +8,13 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+// ========================================
 // CONEXIÓN A MYSQL
+// ========================================
+
 const conexion = mysql.createConnection({
   host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
+  port: Number(process.env.DB_PORT) || 3306,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME
@@ -25,12 +28,18 @@ conexion.connect((err) => {
   }
 })
 
+// ========================================
 // RUTA DE PRUEBA
+// ========================================
+
 app.get("/", (req, res) => {
   res.send("Servidor funcionando correctamente")
 })
 
-// LOGIN CON ROLES
+// ========================================
+// LOGIN
+// ========================================
+
 app.post("/login", (req, res) => {
   const { usuario, password } = req.body
 
@@ -41,13 +50,18 @@ app.post("/login", (req, res) => {
     })
   }
 
-  const sql = "SELECT * FROM usuarios WHERE usuario = ? AND password = ?"
+  const sql = `
+    SELECT *
+    FROM usuarios
+    WHERE usuario = ?
+      AND password = ?
+  `
 
   conexion.query(sql, [usuario, password], (err, result) => {
     if (err) {
       console.log("Error en login:", err)
 
-      return res.json({
+      return res.status(500).json({
         status: "error",
         mensaje: "Error en el servidor"
       })
@@ -59,14 +73,18 @@ app.post("/login", (req, res) => {
         nombre: result[0].nombre,
         rol: result[0].rol
       })
-    } else {
-      return res.json({
-        status: "error",
-        mensaje: "Usuario o contraseña incorrectos"
-      })
     }
+
+    return res.json({
+      status: "error",
+      mensaje: "Usuario o contraseña incorrectos"
+    })
   })
 })
+
+// ========================================
+// USUARIOS
+// ========================================
 
 // CREAR USUARIO
 app.post("/usuarios", (req, res) => {
@@ -86,13 +104,17 @@ app.post("/usuarios", (req, res) => {
     })
   }
 
-  const verificar = "SELECT * FROM usuarios WHERE usuario = ?"
+  const verificar = `
+    SELECT id
+    FROM usuarios
+    WHERE usuario = ?
+  `
 
   conexion.query(verificar, [usuario], (err, result) => {
     if (err) {
       console.log("Error al verificar usuario:", err)
 
-      return res.json({
+      return res.status(500).json({
         status: "error",
         mensaje: "Error en el servidor"
       })
@@ -105,35 +127,56 @@ app.post("/usuarios", (req, res) => {
       })
     }
 
-    const sql = "INSERT INTO usuarios(nombre, usuario, password, rol) VALUES (?, ?, ?, ?)"
+    const sql = `
+      INSERT INTO usuarios
+      (
+        nombre,
+        usuario,
+        password,
+        rol
+      )
+      VALUES (?, ?, ?, ?)
+    `
 
-    conexion.query(sql, [nombre, usuario, password, rol], (err, result) => {
-      if (err) {
-        console.log("Error al crear usuario:", err)
+    conexion.query(
+      sql,
+      [nombre, usuario, password, rol],
+      (err) => {
+        if (err) {
+          console.log("Error al crear usuario:", err)
+
+          return res.status(500).json({
+            status: "error",
+            mensaje: "Error al crear usuario"
+          })
+        }
 
         return res.json({
-          status: "error",
-          mensaje: "Error al crear usuario"
+          status: "ok",
+          mensaje: "Usuario creado correctamente"
         })
       }
-
-      return res.json({
-        status: "ok",
-        mensaje: "Usuario creado correctamente"
-      })
-    })
+    )
   })
 })
 
 // LISTAR USUARIOS
 app.get("/usuarios", (req, res) => {
-  const sql = "SELECT id, nombre, usuario, rol FROM usuarios"
+  const sql = `
+    SELECT
+      id,
+      nombre,
+      usuario,
+      rol
+    FROM usuarios
+    ORDER BY id DESC
+  `
 
   conexion.query(sql, (err, result) => {
     if (err) {
       console.log("Error al obtener usuarios:", err)
 
-      return res.json({
+      return res.status(500).json({
         status: "error",
         mensaje: "Error al obtener usuarios"
       })
@@ -142,6 +185,10 @@ app.get("/usuarios", (req, res) => {
     return res.json(result)
   })
 })
+
+// ========================================
+// ALUMNOS
+// ========================================
 
 // REGISTRAR ALUMNO
 app.post("/alumnos", (req, res) => {
@@ -154,29 +201,45 @@ app.post("/alumnos", (req, res) => {
     })
   }
 
-  const sql = "INSERT INTO alumnos(nombre, grado, seccion) VALUES (?, ?, ?)"
+  const sql = `
+    INSERT INTO alumnos
+    (
+      nombre,
+      grado,
+      seccion
+    )
+    VALUES (?, ?, ?)
+  `
 
-  conexion.query(sql, [nombre, grado, seccion], (err, result) => {
-    if (err) {
-      console.log("Error al registrar alumno:", err)
+  conexion.query(
+    sql,
+    [nombre, grado, seccion],
+    (err) => {
+      if (err) {
+        console.log("Error al registrar alumno:", err)
+
+        return res.status(500).json({
+          status: "error",
+          mensaje: "Error al guardar alumno"
+        })
+      }
 
       return res.json({
-        status: "error",
-        mensaje: "Error al guardar alumno"
+        status: "ok",
+        mensaje: "Alumno registrado correctamente"
       })
     }
-
-    return res.json({
-      status: "ok",
-      mensaje: "Alumno registrado correctamente"
-    })
-  })
+  )
 })
 
 // VER SOLO USUARIOS CON ROL ALUMNO
 app.get("/alumnos", (req, res) => {
   const sql = `
-    SELECT id, nombre, usuario, rol
+    SELECT
+      id,
+      nombre,
+      usuario,
+      rol
     FROM usuarios
     WHERE LOWER(TRIM(rol)) = 'alumno'
     ORDER BY id DESC
@@ -186,7 +249,7 @@ app.get("/alumnos", (req, res) => {
     if (err) {
       console.log("Error al obtener alumnos:", err)
 
-      return res.json({
+      return res.status(500).json({
         status: "error",
         mensaje: "Error al obtener alumnos"
       })
@@ -196,7 +259,40 @@ app.get("/alumnos", (req, res) => {
   })
 })
 
-// REGISTRO DE USUARIO PARA LOGIN
+// ========================================
+// MAESTROS
+// ========================================
+
+app.get("/maestros", (req, res) => {
+  const sql = `
+    SELECT
+      id,
+      nombre,
+      usuario,
+      rol
+    FROM usuarios
+    WHERE LOWER(TRIM(rol)) = 'maestro'
+    ORDER BY id DESC
+  `
+
+  conexion.query(sql, (err, result) => {
+    if (err) {
+      console.log("Error al obtener maestros:", err)
+
+      return res.status(500).json({
+        status: "error",
+        mensaje: "Error al obtener maestros"
+      })
+    }
+
+    return res.json(result)
+  })
+})
+
+// ========================================
+// REGISTRO
+// ========================================
+
 app.post("/registro", (req, res) => {
   const { nombre, usuario, password } = req.body
 
@@ -207,31 +303,48 @@ app.post("/registro", (req, res) => {
     })
   }
 
-  const sql = "INSERT INTO usuarios(nombre, usuario, password) VALUES (?, ?, ?)"
+  const sql = `
+    INSERT INTO usuarios
+    (
+      nombre,
+      usuario,
+      password
+    )
+    VALUES (?, ?, ?)
+  `
 
-  conexion.query(sql, [nombre, usuario, password], (err, result) => {
-    if (err) {
-      console.log("Error al registrar usuario:", err)
+  conexion.query(
+    sql,
+    [nombre, usuario, password],
+    (err) => {
+      if (err) {
+        console.log("Error al registrar usuario:", err)
+
+        return res.status(500).json({
+          status: "error",
+          mensaje: "Error al registrar usuario"
+        })
+      }
 
       return res.json({
-        status: "error",
-        mensaje: "Error al registrar usuario"
+        status: "ok",
+        mensaje: "Usuario registrado correctamente"
       })
     }
-
-    return res.json({
-      status: "ok",
-      mensaje: "Usuario registrado correctamente"
-    })
-  })
+  )
 })
-// ===============================
+
+// ========================================
 // CONTENIDOS
-// ===============================
+// ========================================
 
 // CREAR CONTENIDO
 app.post("/contenidos", (req, res) => {
-  const { titulo, descripcion, grado } = req.body
+  const {
+    titulo,
+    descripcion,
+    grado
+  } = req.body
 
   if (!titulo || !descripcion || !grado) {
     return res.json({
@@ -240,34 +353,50 @@ app.post("/contenidos", (req, res) => {
     })
   }
 
-  const sql = "INSERT INTO contenidos(titulo, descripcion, grado) VALUES (?, ?, ?)"
+  const sql = `
+    INSERT INTO contenidos
+    (
+      titulo,
+      descripcion,
+      grado
+    )
+    VALUES (?, ?, ?)
+  `
 
-  conexion.query(sql, [titulo, descripcion, grado], (err, result) => {
-    if (err) {
-      console.log("Error al crear contenido:", err)
+  conexion.query(
+    sql,
+    [titulo, descripcion, grado],
+    (err) => {
+      if (err) {
+        console.log("Error al crear contenido:", err)
+
+        return res.status(500).json({
+          status: "error",
+          mensaje: "Error al crear contenido"
+        })
+      }
 
       return res.json({
-        status: "error",
-        mensaje: "Error al crear contenido"
+        status: "ok",
+        mensaje: "Contenido creado correctamente"
       })
     }
-
-    return res.json({
-      status: "ok",
-      mensaje: "Contenido creado correctamente"
-    })
-  })
+  )
 })
 
 // LISTAR CONTENIDOS
 app.get("/contenidos", (req, res) => {
-  const sql = "SELECT * FROM contenidos ORDER BY id DESC"
+  const sql = `
+    SELECT *
+    FROM contenidos
+    ORDER BY id DESC
+  `
 
   conexion.query(sql, (err, result) => {
     if (err) {
       console.log("Error al obtener contenidos:", err)
 
-      return res.json({
+      return res.status(500).json({
         status: "error",
         mensaje: "Error al obtener contenidos"
       })
@@ -281,20 +410,24 @@ app.get("/contenidos", (req, res) => {
 app.get("/contenidos/:id", (req, res) => {
   const { id } = req.params
 
-  const sql = "SELECT * FROM contenidos WHERE id = ?"
+  const sql = `
+    SELECT *
+    FROM contenidos
+    WHERE id = ?
+  `
 
   conexion.query(sql, [id], (err, result) => {
     if (err) {
       console.log("Error al obtener contenido:", err)
 
-      return res.json({
+      return res.status(500).json({
         status: "error",
         mensaje: "Error al obtener contenido"
       })
     }
 
     if (result.length === 0) {
-      return res.json({
+      return res.status(404).json({
         status: "error",
         mensaje: "Contenido no encontrado"
       })
@@ -304,11 +437,11 @@ app.get("/contenidos/:id", (req, res) => {
   })
 })
 
-// ===============================
+// ========================================
 // PREGUNTAS
-// ===============================
+// ========================================
 
-// CREAR PREGUNTA CON PUNTAJE
+// CREAR PREGUNTA
 app.post("/preguntas", (req, res) => {
   const {
     contenido_id,
@@ -329,11 +462,24 @@ app.post("/preguntas", (req, res) => {
     !opcion_c ||
     !opcion_d ||
     !respuesta_correcta ||
-    !puntaje
+    puntaje === undefined ||
+    puntaje === null
   ) {
     return res.json({
       status: "error",
       mensaje: "Todos los campos son obligatorios"
+    })
+  }
+
+  const respuesta = respuesta_correcta
+    .toString()
+    .trim()
+    .toUpperCase()
+
+  if (!["A", "B", "C", "D"].includes(respuesta)) {
+    return res.json({
+      status: "error",
+      mensaje: "La respuesta correcta debe ser A, B, C o D"
     })
   }
 
@@ -361,14 +507,14 @@ app.post("/preguntas", (req, res) => {
       opcion_b,
       opcion_c,
       opcion_d,
-      respuesta_correcta,
+      respuesta,
       puntaje
     ],
-    (err, result) => {
+    (err) => {
       if (err) {
         console.log("Error al crear pregunta:", err)
 
-        return res.json({
+        return res.status(500).json({
           status: "error",
           mensaje: "Error al crear pregunta"
         })
@@ -382,38 +528,17 @@ app.post("/preguntas", (req, res) => {
   )
 })
 
-// CREAR PREGUNTA CON PUNTAJE
-app.post("/preguntas", (req, res) => {
-  const {
-    contenido_id,
-    pregunta,
-    opcion_a,
-    opcion_b,
-    opcion_c,
-    opcion_d,
-    respuesta_correcta,
-    puntaje
-  } = req.body
+// ========================================
+// OBTENER PREGUNTAS POR CONTENIDO
+// ESTA ES LA RUTA QUE FALTABA
+// ========================================
 
-  if (
-    !contenido_id ||
-    !pregunta ||
-    !opcion_a ||
-    !opcion_b ||
-    !opcion_c ||
-    !opcion_d ||
-    !respuesta_correcta ||
-    !puntaje
-  ) {
-    return res.json({
-      status: "error",
-      mensaje: "Todos los campos son obligatorios"
-    })
-  }
+app.get("/contenidos/:id/preguntas", (req, res) => {
+  const { id } = req.params
 
   const sql = `
-    INSERT INTO preguntas
-    (
+    SELECT
+      id,
       contenido_id,
       pregunta,
       opcion_a,
@@ -422,56 +547,21 @@ app.post("/preguntas", (req, res) => {
       opcion_d,
       respuesta_correcta,
       puntaje
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    FROM preguntas
+    WHERE contenido_id = ?
+    ORDER BY id ASC
   `
 
-  conexion.query(
-    sql,
-    [
-      contenido_id,
-      pregunta,
-      opcion_a,
-      opcion_b,
-      opcion_c,
-      opcion_d,
-      respuesta_correcta,
-      puntaje
-    ],
-    (err, result) => {
-      if (err) {
-        console.log("Error al crear pregunta:", err)
-
-        return res.json({
-          status: "error",
-          mensaje: "Error al crear pregunta"
-        })
-      }
-
-      return res.json({
-        status: "ok",
-        mensaje: "Pregunta creada correctamente"
-      })
-    }
-  )
-})
-
-// VER SOLO USUARIOS CON ROL MAESTRO
-app.get("/maestros", (req, res) => {
-  const sql = `
-    SELECT id, nombre, usuario, rol
-    FROM usuarios
-    WHERE LOWER(TRIM(rol)) = 'maestro'
-    ORDER BY id DESC
-  `
-
-  conexion.query(sql, (err, result) => {
+  conexion.query(sql, [id], (err, result) => {
     if (err) {
-      console.log("Error al obtener maestros:", err)
+      console.log(
+        "Error al obtener preguntas del contenido:",
+        err
+      )
 
-      return res.json({
+      return res.status(500).json({
         status: "error",
-        mensaje: "Error al obtener maestros"
+        mensaje: "Error al obtener preguntas"
       })
     }
 
@@ -479,7 +569,10 @@ app.get("/maestros", (req, res) => {
   })
 })
 
+// ========================================
 // SERVIDOR
+// ========================================
+
 const PORT = process.env.PORT || 3001
 
 app.listen(PORT, "0.0.0.0", () => {
