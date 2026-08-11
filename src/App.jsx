@@ -2,6 +2,7 @@ import { useState } from "react"
 import axios from "axios"
 import "./App.css"
 import { useNavigate } from "react-router-dom"
+import { API_URL } from "./config";
 
 function App() {
   const navigate = useNavigate()
@@ -16,7 +17,7 @@ function App() {
       return
     }
 
-    axios.post("http://localhost:3001/login", {
+    axios.post(`${API_URL}/login`, {
       usuario,
       password
     })

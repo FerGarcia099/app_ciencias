@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
+import { API_URL } from "../config";
 
 function Maestros() {
   const navigate = useNavigate()
@@ -11,7 +12,7 @@ function Maestros() {
   }, [])
 
   const obtenerMaestros = () => {
-    axios.get("http://localhost:3001/maestros")
+    axios.get(`${API_URL}/maestros`)
       .then(res => {
         setMaestros(res.data)
       })

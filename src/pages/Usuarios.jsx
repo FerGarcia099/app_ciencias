@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
+import { API_URL } from "../config";
 
 function Usuarios() {
   const navigate = useNavigate()
@@ -16,7 +17,7 @@ function Usuarios() {
   }, [])
 
   const obtenerUsuarios = () => {
-    axios.get("http://localhost:3001/usuarios")
+   axios.get(`${API_URL}/usuarios`)
       .then(res => {
         setUsuarios(res.data)
       })
@@ -37,7 +38,7 @@ function Usuarios() {
       return
     }
 
-    axios.post("http://localhost:3001/usuarios", {
+    axios.post(`${API_URL}/usuarios`, {
       nombre,
       usuario,
       password,

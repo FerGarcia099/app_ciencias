@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import Sidebar from "../components/Sidebar"
+import { API_URL } from "../config";
 
 function ContenidoAlumno() {
   const navigate = useNavigate()
@@ -18,7 +19,7 @@ function ContenidoAlumno() {
   }, [])
 
   const obtenerContenidos = () => {
-    axios.get("http://localhost:3001/contenidos")
+    axios.get(`${API_URL}/contenidos`)
       .then(res => {
         setContenidos(res.data)
       })
@@ -33,7 +34,7 @@ function ContenidoAlumno() {
     setResultado(null)
     setRespuestas({})
 
-    axios.get(`http://localhost:3001/contenidos/${contenido.id}/preguntas`)
+    axios.get(`${API_URL}/contenidos/${contenido.id}/preguntas`)
       .then(res => {
         setPreguntas(res.data)
       })

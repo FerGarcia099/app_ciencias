@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
+import { API_URL } from "../config";
 
 function Contenidos() {
   const navigate = useNavigate()
@@ -25,7 +26,7 @@ function Contenidos() {
   }, [])
 
   const obtenerContenidos = () => {
-    axios.get("http://localhost:3001/contenidos")
+    axios.get(`${API_URL}/contenidos`)
       .then(res => {
         setContenidos(res.data)
       })
@@ -41,7 +42,7 @@ function Contenidos() {
       return
     }
 
-    axios.post("http://localhost:3001/contenidos", {
+    axios.post(`${API_URL}/contenidos`, {
       titulo,
       descripcion,
       grado
@@ -80,7 +81,7 @@ function Contenidos() {
       return
     }
 
-    axios.post("http://localhost:3001/preguntas", {
+    axios.post(`${API_URL}/preguntas`, {
       contenido_id: contenidoId,
       pregunta,
       opcion_a: opcionA,

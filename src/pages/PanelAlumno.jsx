@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import "../App.css"
+import { API_URL } from "../config";
 
 function PanelAlumno() {
   const navigate = useNavigate()
@@ -14,7 +15,7 @@ function PanelAlumno() {
   }, [])
 
   const obtenerContenidos = () => {
-    axios.get("http://localhost:3001/contenidos")
+    axios.get(`${API_URL}/contenidos`)
       .then(res => {
         setContenidos(res.data)
       })
