@@ -11,7 +11,7 @@ app.use(express.json())
 // CONEXIÓN A MYSQL
 const conexion = mysql.createConnection({
   host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT) || 3306,
+  port: process.env.DB_PORT,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME
@@ -480,6 +480,8 @@ app.get("/maestros", (req, res) => {
 })
 
 // SERVIDOR
-app.listen(3001, () => {
-  console.log("Servidor corriendo en puerto 3001")
+const PORT = process.env.PORT || 3001
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Servidor corriendo en puerto ${PORT}`)
 })
