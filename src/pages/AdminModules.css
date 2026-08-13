@@ -1,0 +1,645 @@
+* {
+  box-sizing: border-box;
+}
+
+/* =========================================
+   FONDO GENERAL
+========================================= */
+
+.admin-page {
+  min-height: 100vh;
+  margin-left: 250px;
+  padding: 40px 35px 70px;
+
+  position: relative;
+  overflow-x: hidden;
+
+  background:
+    linear-gradient(
+      145deg,
+      #eef8ff 0%,
+      #f7f4ff 50%,
+      #fff8e8 100%
+    );
+
+  font-family:
+    "Comic Sans MS",
+    "Trebuchet MS",
+    sans-serif;
+}
+
+.admin-container {
+  width: min(1150px, 100%);
+  margin: auto;
+  position: relative;
+  z-index: 2;
+}
+
+/* =========================================
+   DECORACIONES
+========================================= */
+
+.admin-deco {
+  position: fixed;
+  font-size: 45px;
+  opacity: 0.07;
+  pointer-events: none;
+  animation: admin-flotar 7s ease-in-out infinite;
+}
+
+.admin-deco-1 {
+  top: 90px;
+  right: 45px;
+}
+
+.admin-deco-2 {
+  top: 370px;
+  right: 80px;
+  animation-delay: 1s;
+}
+
+.admin-deco-3 {
+  bottom: 80px;
+  left: 290px;
+  animation-delay: 2s;
+}
+
+.admin-deco-4 {
+  bottom: 130px;
+  right: 70px;
+  animation-delay: 3s;
+}
+
+@keyframes admin-flotar {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-12px) rotate(4deg);
+  }
+}
+
+/* =========================================
+   ENCABEZADO
+========================================= */
+
+.admin-header {
+  background: rgba(255, 255, 255, 0.95);
+
+  border-radius: 28px;
+  padding: 28px 32px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 25px;
+
+  box-shadow:
+    0 14px 38px rgba(51, 48, 70, 0.09);
+
+  margin-bottom: 28px;
+}
+
+.admin-header-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.admin-header-icon {
+  width: 76px;
+  height: 76px;
+  min-width: 76px;
+
+  border-radius: 23px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 38px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #8b67f7,
+      #4b9af4
+    );
+
+  box-shadow:
+    0 9px 22px rgba(92, 91, 236, 0.22);
+}
+
+.admin-header-text small {
+  color: #775fcf;
+  font-weight: bold;
+}
+
+.admin-header-text h1 {
+  margin: 5px 0;
+  color: #302a3c;
+  font-size: 30px;
+}
+
+.admin-header-text p {
+  margin: 0;
+  color: #77717f;
+}
+
+.admin-counter {
+  background:
+    linear-gradient(
+      135deg,
+      #fff2c8,
+      #fff9eb
+    );
+
+  border-radius: 20px;
+  padding: 15px 22px;
+
+  text-align: center;
+  color: #8d651c;
+}
+
+.admin-counter strong {
+  display: block;
+  font-size: 27px;
+}
+
+.admin-counter span {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* =========================================
+   BOTÓN REGRESAR
+========================================= */
+
+.admin-back {
+  border: none;
+
+  background: white;
+  color: #5c5270;
+
+  padding: 12px 19px;
+
+  border-radius: 14px;
+
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 14px;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 16px rgba(50, 46, 64, 0.1);
+
+  transition: 0.2s;
+}
+
+.admin-back:hover {
+  transform: translateX(-4px);
+  background: #f3efff;
+}
+
+/* =========================================
+   TARJETA PRINCIPAL
+========================================= */
+
+.admin-card {
+  background: rgba(255, 255, 255, 0.96);
+
+  border-radius: 28px;
+  padding: 30px;
+
+  box-shadow:
+    0 15px 40px rgba(45, 44, 60, 0.09);
+}
+
+.admin-card-header {
+  margin-bottom: 22px;
+}
+
+.admin-card-header small {
+  color: #57af64;
+  font-weight: bold;
+}
+
+.admin-card-header h2 {
+  margin: 4px 0 3px;
+  color: #342e40;
+  font-size: 27px;
+}
+
+.admin-card-header p {
+  margin: 0;
+  color: #89838f;
+  font-size: 14px;
+}
+
+/* =========================================
+   TABLAS
+========================================= */
+
+.admin-table-wrapper {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px;
+}
+
+.admin-table thead th {
+  color: #746d7c;
+  text-align: left;
+
+  font-size: 13px;
+  padding: 11px 16px;
+
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.admin-table tbody tr {
+  background: #faf9fd;
+  transition: 0.2s;
+}
+
+.admin-table tbody tr:hover {
+  background: #f4f0ff;
+  transform: translateY(-2px);
+}
+
+.admin-table td {
+  padding: 16px;
+  color: #514b58;
+}
+
+.admin-table td:first-child {
+  border-radius: 16px 0 0 16px;
+}
+
+.admin-table td:last-child {
+  border-radius: 0 16px 16px 0;
+}
+
+.persona-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.persona-avatar {
+  width: 43px;
+  height: 43px;
+
+  border-radius: 13px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  font-size: 22px;
+
+  background: #eee8ff;
+}
+
+.persona-nombre {
+  font-weight: bold;
+  color: #3d3745;
+}
+
+/* =========================================
+   BADGES
+========================================= */
+
+.badge-admin {
+  display: inline-block;
+
+  padding: 7px 14px;
+  border-radius: 50px;
+
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.badge-alumno {
+  background: #eaf9ed;
+  color: #42a756;
+}
+
+.badge-maestro {
+  background: #e9f3ff;
+  color: #347ed1;
+}
+
+/* =========================================
+   FORMULARIOS
+========================================= */
+
+.admin-grid-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+}
+
+.admin-form-card {
+  background: rgba(255, 255, 255, 0.96);
+
+  padding: 30px;
+
+  border-radius: 27px;
+
+  box-shadow:
+    0 14px 38px rgba(46, 44, 60, 0.09);
+}
+
+.admin-form-title {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+
+  margin-bottom: 24px;
+}
+
+.admin-form-icon {
+  width: 55px;
+  height: 55px;
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #8c68f8,
+      #557fe9
+    );
+
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 27px;
+}
+
+.admin-form-title h2 {
+  margin: 0;
+  color: #36303f;
+  font-size: 23px;
+}
+
+.admin-form-title p {
+  margin: 3px 0 0;
+  color: #8c8593;
+  font-size: 13px;
+}
+
+.admin-field {
+  margin-bottom: 15px;
+}
+
+.admin-field label {
+  display: block;
+
+  text-align: left;
+
+  color: #655f6d;
+  font-size: 13px;
+  font-weight: bold;
+
+  margin-bottom: 7px;
+}
+
+.admin-field input,
+.admin-field select,
+.admin-field textarea {
+  width: 100%;
+
+  padding: 13px 15px;
+
+  border: 2px solid #ece8f3;
+  border-radius: 14px;
+
+  outline: none;
+
+  font-family: inherit;
+  font-size: 14px;
+
+  color: #504a57;
+
+  background: #fcfbfe;
+
+  transition: 0.2s;
+}
+
+.admin-field textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+.admin-field input:focus,
+.admin-field select:focus,
+.admin-field textarea:focus {
+  border-color: #9272ef;
+
+  background: white;
+
+  box-shadow:
+    0 0 0 4px rgba(145, 113, 239, 0.08);
+}
+
+/* =========================================
+   BOTONES
+========================================= */
+
+.admin-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.admin-primary {
+  flex: 1;
+
+  border: none;
+
+  border-radius: 15px;
+
+  padding: 14px 20px;
+
+  cursor: pointer;
+
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 14px;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      #815cf4,
+      #5748e7
+    );
+
+  box-shadow:
+    0 8px 18px rgba(103, 77, 232, 0.22);
+
+  transition: 0.2s;
+}
+
+.admin-primary:hover {
+  transform: translateY(-2px);
+}
+
+.admin-secondary {
+  border: none;
+
+  border-radius: 15px;
+
+  padding: 14px 20px;
+
+  cursor: pointer;
+
+  font-family: inherit;
+  font-weight: bold;
+
+  color: #615968;
+
+  background: #eeeaf4;
+}
+
+.admin-orange {
+  background:
+    linear-gradient(
+      135deg,
+      #ffad2f,
+      #ff813e
+    );
+}
+
+/* =========================================
+   LISTA CONTENIDOS
+========================================= */
+
+.admin-content-list {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.admin-content-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  background: #faf9fd;
+
+  border: 2px solid #f0edf5;
+
+  border-radius: 18px;
+
+  padding: 15px 18px;
+}
+
+.admin-content-icon {
+  width: 47px;
+  height: 47px;
+
+  border-radius: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #fff0c3;
+
+  font-size: 23px;
+}
+
+.admin-content-info {
+  flex: 1;
+}
+
+.admin-content-info strong {
+  display: block;
+  color: #3d3845;
+}
+
+.admin-content-info span {
+  color: #84808a;
+  font-size: 12px;
+}
+
+/* =========================================
+   VACÍO
+========================================= */
+
+.admin-empty {
+  padding: 40px 20px;
+  text-align: center;
+
+  border: 2px dashed #ddd5ec;
+  border-radius: 20px;
+
+  color: #817987;
+}
+
+.admin-empty-icon {
+  font-size: 50px;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 900px) {
+  .admin-page {
+    margin-left: 0;
+    padding: 25px 15px 50px;
+  }
+
+  .admin-header {
+    flex-wrap: wrap;
+  }
+
+  .admin-counter {
+    width: 100%;
+  }
+
+  .admin-grid-two {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-header {
+    padding: 23px 18px;
+  }
+
+  .admin-header-icon {
+    width: 62px;
+    height: 62px;
+    min-width: 62px;
+  }
+
+  .admin-header-text h1 {
+    font-size: 22px;
+  }
+
+  .admin-card,
+  .admin-form-card {
+    padding: 20px 15px;
+  }
+
+  .admin-actions {
+    flex-direction: column;
+  }
+}

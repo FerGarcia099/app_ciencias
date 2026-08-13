@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
-import { API_URL } from "../config";
+import Sidebar from "../components/Sidebar"
+import { API_URL } from "../config"
+import "./AdminModules.css"
 
 function Contenidos() {
   const navigate = useNavigate()
@@ -18,7 +20,9 @@ function Contenidos() {
   const [opcionB, setOpcionB] = useState("")
   const [opcionC, setOpcionC] = useState("")
   const [opcionD, setOpcionD] = useState("")
-  const [respuestaCorrecta, setRespuestaCorrecta] = useState("A")
+  const [respuestaCorrecta, setRespuestaCorrecta] =
+    useState("A")
+
   const [puntaje, setPuntaje] = useState(1)
 
   useEffect(() => {
@@ -26,44 +30,59 @@ function Contenidos() {
   }, [])
 
   const obtenerContenidos = () => {
-    axios.get(`${API_URL}/contenidos`)
-      .then(res => {
+    axios
+      .get(`${API_URL}/contenidos`)
+      .then((res) => {
         setContenidos(res.data)
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error)
         alert("Error al obtener contenidos")
       })
   }
 
   const guardarContenido = () => {
-    if (titulo.trim() === "" || descripcion.trim() === "" || grado.trim() === "") {
-      alert("Todos los campos del contenido son obligatorios")
+    if (
+      titulo.trim() === "" ||
+      descripcion.trim() === "" ||
+      grado.trim() === ""
+    ) {
+      alert(
+        "Todos los campos del contenido son obligatorios"
+      )
       return
     }
 
-    axios.post(`${API_URL}/contenidos`, {
-      titulo,
-      descripcion,
-      grado
-    })
-    .then(res => {
-      if (res.data.status === "ok") {
-        alert("Contenido creado correctamente")
+    axios
+      .post(`${API_URL}/contenidos`, {
+        titulo,
+        descripcion,
+        grado
+      })
+      .then((res) => {
+        if (res.data.status === "ok") {
 
-        setTitulo("")
-        setDescripcion("")
-        setGrado("")
+          alert("Contenido creado correctamente")
 
-        obtenerContenidos()
-      } else {
-        alert(res.data.mensaje || "Error al crear contenido")
-      }
-    })
-    .catch(error => {
-      console.error(error)
-      alert("Error al conectar con el servidor")
-    })
+          setTitulo("")
+          setDescripcion("")
+          setGrado("")
+
+          obtenerContenidos()
+
+        } else {
+
+          alert(
+            res.data.mensaje ||
+              "Error al crear contenido"
+          )
+
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+        alert("Error al conectar con el servidor")
+      })
   }
 
   const guardarPregunta = () => {
@@ -77,185 +96,449 @@ function Contenidos() {
       respuestaCorrecta.trim() === "" ||
       puntaje <= 0
     ) {
-      alert("Todos los campos de la pregunta son obligatorios")
+      alert(
+        "Todos los campos de la pregunta son obligatorios"
+      )
       return
     }
 
-    axios.post(`${API_URL}/preguntas`, {
-      contenido_id: contenidoId,
-      pregunta,
-      opcion_a: opcionA,
-      opcion_b: opcionB,
-      opcion_c: opcionC,
-      opcion_d: opcionD,
-      respuesta_correcta: respuestaCorrecta,
-      puntaje
-    })
-    .then(res => {
-      if (res.data.status === "ok") {
-        alert("Pregunta creada correctamente")
+    axios
+      .post(`${API_URL}/preguntas`, {
+        contenido_id: contenidoId,
+        pregunta,
+        opcion_a: opcionA,
+        opcion_b: opcionB,
+        opcion_c: opcionC,
+        opcion_d: opcionD,
+        respuesta_correcta: respuestaCorrecta,
+        puntaje
+      })
+      .then((res) => {
+        if (res.data.status === "ok") {
 
-        setPregunta("")
-        setOpcionA("")
-        setOpcionB("")
-        setOpcionC("")
-        setOpcionD("")
-        setRespuestaCorrecta("A")
-        setPuntaje(1)
-      } else {
-        alert(res.data.mensaje || "Error al crear pregunta")
-      }
-    })
-    .catch(error => {
-      console.error(error)
-      alert("Error al conectar con el servidor")
-    })
+          alert("Pregunta creada correctamente")
+
+          setPregunta("")
+          setOpcionA("")
+          setOpcionB("")
+          setOpcionC("")
+          setOpcionD("")
+          setRespuestaCorrecta("A")
+          setPuntaje(1)
+
+        } else {
+
+          alert(
+            res.data.mensaje ||
+              "Error al crear pregunta"
+          )
+
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+        alert("Error al conectar con el servidor")
+      })
   }
 
   return (
-    <div className="contenido">
-      <div className="contenidos-doble-panel">
+    <>
+      <Sidebar />
 
-        <div className="form-card contenido-form">
-          <h2>Subir Contenido 📚</h2>
+      <div className="admin-page">
 
-          <input
-            type="text"
-            placeholder="Título del tema"
-            value={titulo}
-            onChange={(e) => setTitulo(e.target.value)}
-          />
-
-          <input
-            type="text"
-            placeholder="Grado"
-            value={grado}
-            onChange={(e) => setGrado(e.target.value)}
-          />
-
-          <textarea
-            className="textarea-contenido"
-            placeholder="Escribe aquí el contenido del tema"
-            value={descripcion}
-            onChange={(e) => setDescripcion(e.target.value)}
-          />
-
-          <div className="acciones-form">
-            <button onClick={guardarContenido}>
-              Guardar Contenido
-            </button>
-
-            <button className="btn-regresar" onClick={() => navigate("/panel")}>
-              ⬅️ Regresar
-            </button>
-          </div>
+        <div className="admin-deco admin-deco-1">
+          📚
         </div>
 
-        <div className="form-card contenido-form">
-          <h2>Crear Preguntas ❓</h2>
+        <div className="admin-deco admin-deco-2">
+          🧪
+        </div>
 
-          <select
-            className="select-rol"
-            value={contenidoId}
-            onChange={(e) => setContenidoId(e.target.value)}
+        <div className="admin-deco admin-deco-3">
+          🌿
+        </div>
+
+        <div className="admin-deco admin-deco-4">
+          🌎
+        </div>
+
+        <main className="admin-container">
+
+          <section className="admin-header">
+
+            <div className="admin-header-info">
+
+              <div className="admin-header-icon">
+                📚
+              </div>
+
+              <div className="admin-header-text">
+
+                <small>
+                  Material educativo
+                </small>
+
+                <h1>
+                  Contenidos y preguntas
+                </h1>
+
+                <p>
+                  Crea temas de Ciencias Naturales
+                  y evaluaciones para tus alumnos.
+                </p>
+
+              </div>
+
+            </div>
+
+            <div className="admin-counter">
+
+              <strong>
+                {contenidos.length}
+              </strong>
+
+              <span>
+                CONTENIDOS
+              </span>
+
+            </div>
+
+          </section>
+
+          <button
+            className="admin-back"
+            onClick={() =>
+              navigate("/panel")
+            }
           >
-            <option value="">Seleccione un contenido</option>
-            {contenidos.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.titulo} - {item.grado}
-              </option>
-            ))}
-          </select>
-
-          <textarea
-            className="textarea-contenido"
-            placeholder="Escribe la pregunta"
-            value={pregunta}
-            onChange={(e) => setPregunta(e.target.value)}
-          />
-
-          <input
-            type="text"
-            placeholder="Opción A"
-            value={opcionA}
-            onChange={(e) => setOpcionA(e.target.value)}
-          />
-
-          <input
-            type="text"
-            placeholder="Opción B"
-            value={opcionB}
-            onChange={(e) => setOpcionB(e.target.value)}
-          />
-
-          <input
-            type="text"
-            placeholder="Opción C"
-            value={opcionC}
-            onChange={(e) => setOpcionC(e.target.value)}
-          />
-
-          <input
-            type="text"
-            placeholder="Opción D"
-            value={opcionD}
-            onChange={(e) => setOpcionD(e.target.value)}
-          />
-
-        <select
-  className="select-rol"
-  value={respuestaCorrecta}
-  onChange={(e) => setRespuestaCorrecta(e.target.value)}
->
-  <option value="A">Respuesta correcta: A</option>
-  <option value="B">Respuesta correcta: B</option>
-  <option value="C">Respuesta correcta: C</option>
-  <option value="D">Respuesta correcta: D</option>
-</select>
-
-<input
-  type="number"
-  min="1"
-  placeholder="Puntaje de la pregunta"
-  value={puntaje}
-  onChange={(e) => setPuntaje(Number(e.target.value))}
-/>  
-
-          <button onClick={guardarPregunta}>
-            Guardar Pregunta
+            ← Regresar al panel
           </button>
-        </div>
 
-      </div>
+          <br />
+          <br />
 
-      <div className="tabla-card">
-        <h2>Contenidos Registrados 🌱</h2>
+          <div className="admin-grid-two">
 
-        <table className="tabla-alumnos">
-          <thead>
-            <tr>
-              <th>Título</th>
-              <th>Grado</th>
-            </tr>
-          </thead>
+            {/* CREAR CONTENIDO */}
 
-          <tbody>
+            <section className="admin-form-card">
+
+              <div className="admin-form-title">
+
+                <div className="admin-form-icon">
+                  📖
+                </div>
+
+                <div>
+                  <h2>
+                    Nuevo contenido
+                  </h2>
+
+                  <p>
+                    Agrega un nuevo tema educativo.
+                  </p>
+                </div>
+
+              </div>
+
+              <div className="admin-field">
+                <label>
+                  Título del tema
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="Ej. Los ecosistemas"
+                  value={titulo}
+                  onChange={(e) =>
+                    setTitulo(e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="admin-field">
+                <label>
+                  Grado
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="Ej. 4to Primaria"
+                  value={grado}
+                  onChange={(e) =>
+                    setGrado(e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="admin-field">
+                <label>
+                  Descripción / contenido
+                </label>
+
+                <textarea
+                  placeholder="Escribe aquí el contenido del tema..."
+                  value={descripcion}
+                  onChange={(e) =>
+                    setDescripcion(
+                      e.target.value
+                    )
+                  }
+                />
+              </div>
+
+              <button
+                className="admin-primary admin-orange"
+                onClick={guardarContenido}
+              >
+                💾 Guardar contenido
+              </button>
+
+            </section>
+
+            {/* CREAR PREGUNTA */}
+
+            <section className="admin-form-card">
+
+              <div className="admin-form-title">
+
+                <div className="admin-form-icon">
+                  ❓
+                </div>
+
+                <div>
+                  <h2>
+                    Crear pregunta
+                  </h2>
+
+                  <p>
+                    Agrega una pregunta a un contenido.
+                  </p>
+                </div>
+
+              </div>
+
+              <div className="admin-field">
+                <label>
+                  Contenido
+                </label>
+
+                <select
+                  value={contenidoId}
+                  onChange={(e) =>
+                    setContenidoId(
+                      e.target.value
+                    )
+                  }
+                >
+                  <option value="">
+                    Seleccione un contenido
+                  </option>
+
+                  {contenidos.map((item) => (
+                    <option
+                      key={item.id}
+                      value={item.id}
+                    >
+                      {item.titulo} - {item.grado}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="admin-field">
+                <label>
+                  Pregunta
+                </label>
+
+                <textarea
+                  placeholder="Escribe la pregunta..."
+                  value={pregunta}
+                  onChange={(e) =>
+                    setPregunta(e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="admin-field">
+                <label>Opción A</label>
+
+                <input
+                  value={opcionA}
+                  onChange={(e) =>
+                    setOpcionA(e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="admin-field">
+                <label>Opción B</label>
+
+                <input
+                  value={opcionB}
+                  onChange={(e) =>
+                    setOpcionB(e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="admin-field">
+                <label>Opción C</label>
+
+                <input
+                  value={opcionC}
+                  onChange={(e) =>
+                    setOpcionC(e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="admin-field">
+                <label>Opción D</label>
+
+                <input
+                  value={opcionD}
+                  onChange={(e) =>
+                    setOpcionD(e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="admin-field">
+                <label>
+                  Respuesta correcta
+                </label>
+
+                <select
+                  value={respuestaCorrecta}
+                  onChange={(e) =>
+                    setRespuestaCorrecta(
+                      e.target.value
+                    )
+                  }
+                >
+                  <option value="A">
+                    ✅ Opción A
+                  </option>
+
+                  <option value="B">
+                    ✅ Opción B
+                  </option>
+
+                  <option value="C">
+                    ✅ Opción C
+                  </option>
+
+                  <option value="D">
+                    ✅ Opción D
+                  </option>
+                </select>
+              </div>
+
+              <div className="admin-field">
+                <label>
+                  ⭐ Puntaje
+                </label>
+
+                <input
+                  type="number"
+                  min="1"
+                  value={puntaje}
+                  onChange={(e) =>
+                    setPuntaje(
+                      Number(e.target.value)
+                    )
+                  }
+                />
+              </div>
+
+              <button
+                className="admin-primary"
+                onClick={guardarPregunta}
+              >
+                ❓ Guardar pregunta
+              </button>
+
+            </section>
+
+          </div>
+
+          <br />
+
+          {/* CONTENIDOS REGISTRADOS */}
+
+          <section className="admin-card">
+
+            <div className="admin-card-header">
+
+              <small>
+                🌱 TEMAS DISPONIBLES
+              </small>
+
+              <h2>
+                Contenidos registrados
+              </h2>
+
+              <p>
+                Temas disponibles para los estudiantes.
+              </p>
+
+            </div>
+
             {contenidos.length > 0 ? (
-              contenidos.map((item) => (
-                <tr key={item.id}>
-                  <td>{item.titulo}</td>
-                  <td>{item.grado}</td>
-                </tr>
-              ))
+
+              <div className="admin-content-list">
+
+                {contenidos.map((item) => (
+
+                  <div
+                    className="admin-content-row"
+                    key={item.id}
+                  >
+
+                    <div className="admin-content-icon">
+                      📗
+                    </div>
+
+                    <div className="admin-content-info">
+
+                      <strong>
+                        {item.titulo}
+                      </strong>
+
+                      <span>
+                        🎓 Grado: {item.grado}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                ))}
+
+              </div>
+
             ) : (
-              <tr>
-                <td colSpan="2">No hay contenidos registrados</td>
-              </tr>
+
+              <div className="admin-empty">
+
+                <div className="admin-empty-icon">
+                  📭
+                </div>
+
+                No hay contenidos registrados
+
+              </div>
+
             )}
-          </tbody>
-        </table>
+
+          </section>
+
+        </main>
+
       </div>
-    </div>
+    </>
   )
 }
 

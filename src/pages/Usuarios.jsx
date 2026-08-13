@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
-import { API_URL } from "../config";
+import Sidebar from "../components/Sidebar"
+import { API_URL } from "../config"
+import "./AdminModules.css"
 
 function Usuarios() {
   const navigate = useNavigate()
@@ -17,11 +19,12 @@ function Usuarios() {
   }, [])
 
   const obtenerUsuarios = () => {
-   axios.get(`${API_URL}/usuarios`)
-      .then(res => {
+    axios
+      .get(`${API_URL}/usuarios`)
+      .then((res) => {
         setUsuarios(res.data)
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error)
         alert("Error al obtener usuarios")
       })
@@ -38,116 +41,298 @@ function Usuarios() {
       return
     }
 
-    axios.post(`${API_URL}/usuarios`, {
-      nombre,
-      usuario,
-      password,
-      rol
-    })
-    .then(res => {
-      if (res.data.status === "ok") {
-        alert("Usuario creado correctamente")
+    axios
+      .post(`${API_URL}/usuarios`, {
+        nombre,
+        usuario,
+        password,
+        rol
+      })
+      .then((res) => {
+        if (res.data.status === "ok") {
 
-        setNombre("")
-        setUsuario("")
-        setPassword("")
-        setRol("alumno")
+          alert("Usuario creado correctamente")
 
-        obtenerUsuarios()
-      } else {
-        alert(res.data.mensaje || "Error al crear usuario")
-      }
-    })
-    .catch(error => {
-      console.error(error)
-      alert("Error al conectar con el servidor")
-    })
+          setNombre("")
+          setUsuario("")
+          setPassword("")
+          setRol("alumno")
+
+          obtenerUsuarios()
+
+        } else {
+
+          alert(
+            res.data.mensaje ||
+              "Error al crear usuario"
+          )
+
+        }
+      })
+      .catch((error) => {
+        console.error(error)
+        alert("Error al conectar con el servidor")
+      })
   }
 
   return (
-    <div className="contenido">
-      <div className="usuarios-doble-panel">
+    <>
+      <Sidebar />
 
-        <div className="form-card usuarios-form">
-          <h2>Crear Usuarios 👥</h2>
+      <div className="admin-page">
 
-          <input
-            type="text"
-            placeholder="Nombre completo"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-          />
+        <div className="admin-deco admin-deco-1">
+          👥
+        </div>
 
-          <input
-            type="text"
-            placeholder="Usuario"
-            value={usuario}
-            onChange={(e) => setUsuario(e.target.value)}
-          />
+        <div className="admin-deco admin-deco-2">
+          ✏️
+        </div>
 
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+        <div className="admin-deco admin-deco-3">
+          📚
+        </div>
 
-          <select
-            className="select-rol"
-            value={rol}
-            onChange={(e) => setRol(e.target.value)}
-          >
-            <option value="alumno">Alumno</option>
-            <option value="maestro">Maestro</option>
-          </select>
+        <main className="admin-container">
 
-          <div className="acciones-form">
-            <button onClick={guardarUsuario}>
-              Guardar Usuario
-            </button>
+          <section className="admin-header">
 
-            <button className="btn-regresar" onClick={() => navigate("/panel")}>
-              ⬅️ Regresar
-            </button>
+            <div className="admin-header-info">
+
+              <div className="admin-header-icon">
+                👥
+              </div>
+
+              <div className="admin-header-text">
+
+                <small>
+                  Administración de accesos
+                </small>
+
+                <h1>
+                  Usuarios
+                </h1>
+
+                <p>
+                  Crea cuentas para alumnos y maestros.
+                </p>
+
+              </div>
+
+            </div>
+
+            <div className="admin-counter">
+
+              <strong>
+                {usuarios.length}
+              </strong>
+
+              <span>
+                USUARIOS
+              </span>
+
+            </div>
+
+          </section>
+
+          <div className="admin-grid-two">
+
+            {/* FORMULARIO */}
+
+            <section className="admin-form-card">
+
+              <div className="admin-form-title">
+
+                <div className="admin-form-icon">
+                  ➕
+                </div>
+
+                <div>
+                  <h2>
+                    Crear usuario
+                  </h2>
+
+                  <p>
+                    Ingresa los datos del nuevo usuario.
+                  </p>
+                </div>
+
+              </div>
+
+              <div className="admin-field">
+                <label>
+                  Nombre completo
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="Ej. Juan Pérez"
+                  value={nombre}
+                  onChange={(e) =>
+                    setNombre(e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="admin-field">
+                <label>
+                  Usuario
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="Ej. jperez"
+                  value={usuario}
+                  onChange={(e) =>
+                    setUsuario(e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="admin-field">
+                <label>
+                  Contraseña
+                </label>
+
+                <input
+                  type="password"
+                  placeholder="Contraseña"
+                  value={password}
+                  onChange={(e) =>
+                    setPassword(e.target.value)
+                  }
+                />
+              </div>
+
+              <div className="admin-field">
+                <label>
+                  Rol
+                </label>
+
+                <select
+                  value={rol}
+                  onChange={(e) =>
+                    setRol(e.target.value)
+                  }
+                >
+                  <option value="alumno">
+                    👦 Alumno
+                  </option>
+
+                  <option value="maestro">
+                    👨‍🏫 Maestro
+                  </option>
+                </select>
+              </div>
+
+              <div className="admin-actions">
+
+                <button
+                  className="admin-primary"
+                  onClick={guardarUsuario}
+                >
+                  💾 Guardar usuario
+                </button>
+
+                <button
+                  className="admin-secondary"
+                  onClick={() =>
+                    navigate("/panel")
+                  }
+                >
+                  ← Regresar
+                </button>
+
+              </div>
+
+            </section>
+
+            {/* LISTADO */}
+
+            <section className="admin-card">
+
+              <div className="admin-card-header">
+
+                <small>
+                  📋 USUARIOS
+                </small>
+
+                <h2>
+                  Usuarios registrados
+                </h2>
+
+                <p>
+                  Alumnos y maestros del sistema.
+                </p>
+
+              </div>
+
+              <div className="admin-table-wrapper">
+
+                <table className="admin-table">
+
+                  <thead>
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Usuario</th>
+                      <th>Rol</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+
+                    {usuarios.length > 0 ? (
+                      usuarios.map((item) => (
+
+                        <tr key={item.id}>
+
+                          <td>
+                            {item.nombre}
+                          </td>
+
+                          <td>
+                            @{item.usuario}
+                          </td>
+
+                          <td>
+                            <span
+                              className={
+                                item.rol === "maestro"
+                                  ? "badge-admin badge-maestro"
+                                  : "badge-admin badge-alumno"
+                              }
+                            >
+                              {item.rol}
+                            </span>
+                          </td>
+
+                        </tr>
+
+                      ))
+                    ) : (
+
+                      <tr>
+                        <td colSpan="3">
+                          No hay usuarios registrados
+                        </td>
+                      </tr>
+
+                    )}
+
+                  </tbody>
+
+                </table>
+
+              </div>
+
+            </section>
+
           </div>
-        </div>
 
-        <div className="tabla-card usuarios-tabla">
-          <h2>Lista de Usuarios 📋</h2>
-
-          <table className="tabla-alumnos">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Usuario</th>
-                <th>Rol</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {usuarios.length > 0 ? (
-                usuarios.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.nombre}</td>
-                    <td>{item.usuario}</td>
-                    <td>
-                      <span className={item.rol === "maestro" ? "rol-maestro" : "rol-alumno"}>
-                        {item.rol}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3">No hay usuarios registrados</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        </main>
 
       </div>
-    </div>
+    </>
   )
 }
 

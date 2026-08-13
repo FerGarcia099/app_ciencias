@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom"
+import { NavLink, useNavigate } from "react-router-dom"
 import "./Sidebar.css"
 
 function Sidebar() {
@@ -9,34 +9,67 @@ function Sidebar() {
     navigate("/")
   }
 
+  const claseLink = ({ isActive }) =>
+    `sidebar-link ${isActive ? "sidebar-activo" : ""}`
+
   return (
-    <div className="sidebar">
-      <h2 className="logo">🎒 Escuela</h2>
+    <aside className="sidebar">
 
-      <Link to="/panel" className="sidebar-link">
-        🏠 Inicio
-      </Link>
+      <div className="sidebar-brand">
+        <div className="sidebar-brand-icon">
+          🎒
+        </div>
 
-      <Link to="/alumnos" className="sidebar-link">
-        👦 Alumnos
-      </Link>
+        <div>
+          <h2>Eco Holistic</h2>
+          <span>Panel educativo</span>
+        </div>
+      </div>
 
-      <Link to="/maestros" className="sidebar-link">
-        👩‍🏫 Maestros
-      </Link>
+      <div className="sidebar-separador">
+        MENÚ PRINCIPAL
+      </div>
 
-      <Link to="/usuarios" className="sidebar-link">
-        👥 Crear Usuarios
-      </Link>
+      <nav className="sidebar-nav">
 
-      <Link to="/contenidos" className="sidebar-link">
-        📚 Contenidos
-      </Link>
+        <NavLink to="/panel" className={claseLink}>
+          <span className="sidebar-icon">🏠</span>
+          <span>Inicio</span>
+        </NavLink>
 
-      <button className="sidebar-link salir" onClick={salir}>
-        🚪 Salir
-      </button>
-    </div>
+        <NavLink to="/alumnos" className={claseLink}>
+          <span className="sidebar-icon">👦</span>
+          <span>Alumnos</span>
+        </NavLink>
+
+        <NavLink to="/maestros" className={claseLink}>
+          <span className="sidebar-icon">👨‍🏫</span>
+          <span>Maestros</span>
+        </NavLink>
+
+        <NavLink to="/usuarios" className={claseLink}>
+          <span className="sidebar-icon">👥</span>
+          <span>Crear usuarios</span>
+        </NavLink>
+
+        <NavLink to="/contenidos" className={claseLink}>
+          <span className="sidebar-icon">📚</span>
+          <span>Contenidos</span>
+        </NavLink>
+
+      </nav>
+
+      <div className="sidebar-footer">
+        <button
+          className="sidebar-salir"
+          onClick={salir}
+        >
+          <span>🚪</span>
+          Cerrar sesión
+        </button>
+      </div>
+
+    </aside>
   )
 }
 
