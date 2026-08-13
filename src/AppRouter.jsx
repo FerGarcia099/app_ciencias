@@ -18,13 +18,45 @@ function AppRouter() {
   return (
     <Routes>
       <Route path="/" element={<Login />} />
+
       <Route path="/panel" element={<Panel />} />
-      <Route path="/panelAlumno" element={<PanelAlumno />} />
-      <Route path="/alumnos" element={<ListaAlumnos />} />
-      <Route path="/maestros" element={<Maestros />} />
-      <Route path="/usuarios" element={<Usuarios />} />
-      <Route path="/contenidos" element={<Contenidos />} />
-      <Route path="/contenidoAlumno" element={<ContenidoAlumno />} />
+
+      <Route
+        path="/panelAlumno"
+        element={<PanelAlumno />}
+      />
+
+      <Route
+        path="/alumnos"
+        element={<ListaAlumnos />}
+      />
+
+      <Route
+        path="/maestros"
+        element={<Maestros />}
+      />
+
+      <Route
+        path="/usuarios"
+        element={<Usuarios />}
+      />
+
+      <Route
+        path="/contenidos"
+        element={<Contenidos />}
+      />
+
+      {/* NUEVA RUTA PARA ABRIR UN CONTENIDO ESPECÍFICO */}
+      <Route
+        path="/contenido-alumno/:id"
+        element={<ContenidoAlumno />}
+      />
+
+      {/* La dejamos por compatibilidad */}
+      <Route
+        path="/contenidoAlumno"
+        element={<PanelAlumno />}
+      />
     </Routes>
   )
 }
