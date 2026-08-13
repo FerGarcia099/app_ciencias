@@ -1,234 +1,126 @@
 import { useEffect, useState } from "react"
+import { useNavigate, useParams } from "react-router-dom"
 import axios from "axios"
-import { useNavigate } from "react-router-dom"
-import Sidebar from "../components/Sidebar"
-import { API_URL } from "../config";
+import { API_URL } from "../config"
 
 function ContenidoAlumno() {
-  const navigate = useNavigate()
 
-  const [contenidos, setContenidos] = useState([])
-  const [contenidoSeleccionado, setContenidoSeleccionado] = useState(null)
+  const navigate = useNavigate()
+  const { id } = useParams()
+
+  const [contenido, setContenido] = useState(null)
   const [preguntas, setPreguntas] = useState([])
-  const [respuestas, setRespuestas] = useState({})
-  const [resultado, setResultado] = useState(null)
- 
+  const [cargando, setCargando] = useState(true)
 
   useEffect(() => {
-    obtenerContenidos()
-  }, [])
+    cargarContenido()
+  }, [id])
 
-  const obtenerContenidos = () => {
-    axios.get(`${API_URL}/contenidos`)
-      .then(res => {
-        setContenidos(res.data)
-      })
-      .catch(error => {
-        console.error(error)
-        alert("Error al obtener contenidos")
-      })
-  }
+  const cargarContenido = async () => {
+    try {
 
-  const verContenido = (contenido) => {
-    setContenidoSeleccionado(contenido)
-    setResultado(null)
-    setRespuestas({})
+      const contenidoResponse = await axios.get(
+        `${API_URL}/contenidos/${id}`
+      )
 
-    axios.get(`${API_URL}/contenidos/${contenido.id}/preguntas`)
-      .then(res => {
-        setPreguntas(res.data)
-      })
-      .catch(error => {
-        console.error(error)
-        alert("Error al obtener preguntas")
-      })
-  }
+      const preguntasResponse = await axios.get(
+        `${API_URL}/contenidos/${id}/preguntas`
+      )
 
-  const seleccionarRespuesta = (preguntaId, respuesta) => {
-    setRespuestas({
-      ...respuestas,
-      [preguntaId]: respuesta
-    })
-  }
+      setContenido(contenidoResponse.data)
+      setPreguntas(preguntasResponse.data)
 
-  const calificar = () => {
-    if (preguntas.length === 0) {
-      alert("Este contenido no tiene preguntas")
-      return
+    } catch (error) {
+
+      console.error("Error:", error)
+      alert("Error al cargar el contenido")
+
+    } finally {
+      setCargando(false)
     }
-
-    const preguntasSinResponder = preguntas.filter(
-      (pregunta) => !respuestas[pregunta.id]
-    )
-
-    if (preguntasSinResponder.length > 0) {
-      alert("Debes responder todas las preguntas antes de calificar")
-      return
-    }
-
-    let correctas = 0
-    let puntosObtenidos = 0
-    let puntosTotales = 0
-
-    preguntas.forEach((pregunta) => {
-      const valorPregunta = Number(pregunta.puntaje) || 1
-      puntosTotales += valorPregunta
-
-      if (respuestas[pregunta.id] === pregunta.respuesta_correcta) {
-        correctas++
-        puntosObtenidos += valorPregunta
-      }
-    })
-
-    setResultado({
-      correctas,
-      total: preguntas.length,
-      puntosObtenidos,
-      puntosTotales
-    })
   }
 
-  const volverAContenidos = () => {
-    setContenidoSeleccionado(null)
-    setPreguntas([])
-    setRespuestas({})
-    setResultado(null)
+  if (cargando) {
+    return <h2>Cargando... 📚</h2>
+  }
+
+  if (!contenido) {
+    return <h2>Contenido no encontrado</h2>
   }
 
   return (
-    <div className="contenido">
-      {!contenidoSeleccionado ? (
-        <div className="tabla-card">
-          <h2>Contenidos de Ciencias Naturales 🌎</h2>
+    <div className="contenido-detalle-card">
 
-          <button
-            className="btn-regresar-lista"
-            onClick={() => navigate("/panelAlumno")}
-          >
-            ⬅️ Regresar
-          </button>
+      <button
+        onClick={() => navigate("/panelAlumno")}
+      >
+        ⬅️ Regresar
+      </button>
 
-          <table className="tabla-alumnos">
-            <thead>
-              <tr>
-                <th>Tema</th>
-                <th>Grado</th>
-                <th>Acción</th>
-              </tr>
-            </thead>
+      <h1>
+        {contenido.titulo} 🌱
+      </h1>
 
-            <tbody>
-              {contenidos.length > 0 ? (
-                contenidos.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.titulo}</td>
-                    <td>{item.grado}</td>
-                    <td>
-                      <button onClick={() => verContenido(item)}>
-                        Ver contenido
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3">No hay contenidos disponibles</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+      <h3>
+        Grado: {contenido.grado}
+      </h3>
+
+      <p>
+        {contenido.descripcion}
+      </p>
+
+      <h2>
+        Preguntas ❓
+      </h2>
+
+      {preguntas.length === 0 ? (
+        <p>Este contenido aún no tiene preguntas.</p>
       ) : (
-        <div className="contenido-detalle-card">
-          <h2>{contenidoSeleccionado.titulo}</h2>
+        preguntas.map((pregunta, index) => (
+          <div
+            key={pregunta.id}
+            className="pregunta-card"
+          >
+            <h3>
+              {index + 1}. {pregunta.pregunta}
+            </h3>
 
-          <h3>Grado: {contenidoSeleccionado.grado}</h3>
+            <label>
+              <input
+                type="radio"
+                name={`pregunta-${pregunta.id}`}
+              />
+              A. {pregunta.opcion_a}
+            </label>
 
-          <p className="texto-contenido">
-            {contenidoSeleccionado.descripcion}
-          </p>
+            <label>
+              <input
+                type="radio"
+                name={`pregunta-${pregunta.id}`}
+              />
+              B. {pregunta.opcion_b}
+            </label>
 
-          <h2>Preguntas ❓</h2>
+            <label>
+              <input
+                type="radio"
+                name={`pregunta-${pregunta.id}`}
+              />
+              C. {pregunta.opcion_c}
+            </label>
 
-          {preguntas.length > 0 ? (
-            preguntas.map((item, index) => (
-              <div className="pregunta-card" key={item.id}>
-                <h3>
-                  {index + 1}. {item.pregunta}
+            <label>
+              <input
+                type="radio"
+                name={`pregunta-${pregunta.id}`}
+              />
+              D. {pregunta.opcion_d}
+            </label>
 
-                  <span className="puntaje-pregunta">
-                    {Number(item.puntaje) || 1} pts
-                  </span>
-                </h3>
-
-                <label>
-                  <input
-                    type="radio"
-                    name={`pregunta-${item.id}`}
-                    value="A"
-                    checked={respuestas[item.id] === "A"}
-                    onChange={() => seleccionarRespuesta(item.id, "A")}
-                  />
-                  A. {item.opcion_a}
-                </label>
-
-                <label>
-                  <input
-                    type="radio"
-                    name={`pregunta-${item.id}`}
-                    value="B"
-                    checked={respuestas[item.id] === "B"}
-                    onChange={() => seleccionarRespuesta(item.id, "B")}
-                  />
-                  B. {item.opcion_b}
-                </label>
-
-                <label>
-                  <input
-                    type="radio"
-                    name={`pregunta-${item.id}`}
-                    value="C"
-                    checked={respuestas[item.id] === "C"}
-                    onChange={() => seleccionarRespuesta(item.id, "C")}
-                  />
-                  C. {item.opcion_c}
-                </label>
-
-                <label>
-                  <input
-                    type="radio"
-                    name={`pregunta-${item.id}`}
-                    value="D"
-                    checked={respuestas[item.id] === "D"}
-                    onChange={() => seleccionarRespuesta(item.id, "D")}
-                  />
-                  D. {item.opcion_d}
-                </label>
-              </div>
-            ))
-          ) : (
-            <p>Este contenido aún no tiene preguntas.</p>
-          )}
-
-          {resultado && (
-            <div className="resultado-card">
-              Resultado: {resultado.correctas} de {resultado.total} correctas
-              <br />
-              Puntaje: {resultado.puntosObtenidos} de {resultado.puntosTotales} puntos
-            </div>
-          )}
-
-          <div className="acciones-form">
-            <button onClick={calificar}>
-              Calificar
-            </button>
-
-            <button className="btn-regresar" onClick={volverAContenidos}>
-              ⬅️ Volver
-            </button>
           </div>
-        </div>
+        ))
       )}
+
     </div>
   )
 }

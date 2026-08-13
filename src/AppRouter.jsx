@@ -47,10 +47,10 @@ function AppRouter() {
       />
 
       {/* NUEVA RUTA PARA ABRIR UN CONTENIDO ESPECÍFICO */}
-      <Route
-        path="/contenido-alumno/:id"
-        element={<ContenidoAlumno />}
-      />
+   <Route
+  path="/contenido-alumno/:id"
+  element={<ContenidoAlumno />}
+/>
 
       {/* La dejamos por compatibilidad */}
       <Route

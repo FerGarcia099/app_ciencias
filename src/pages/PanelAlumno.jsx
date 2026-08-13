@@ -35,8 +35,8 @@ export default function PanelAlumno() {
   };
 
   const verPreguntas = (id) => {
-    navigate(`/contenido-alumno/${id}`);
-  };
+  navigate(`/contenido-alumno/${id}`)
+};
 
   return (
     <div className="panel-alumno-page">
@@ -107,11 +107,11 @@ export default function PanelAlumno() {
                   </p>
 
                   <button
-                    className="btn-ver"
-                    onClick={() => verPreguntas(contenido.id)}
-                  >
-                    👀 Ver preguntas
-                  </button>
+  className="btn-ver"
+  onClick={() => verPreguntas(contenido.id)}
+>
+  👀 Ver preguntas
+</button>
                 </div>
               ))}
             </div>
