@@ -1,0 +1,223 @@
+* {
+  box-sizing: border-box;
+}
+
+.panel-alumno-page {
+  min-height: 100vh;
+  padding: 40px 20px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #fdf6ff 0%, #eef8ff 45%, #fff7e6 100%);
+  font-family: "Comic Sans MS", "Trebuchet MS", sans-serif;
+}
+
+/* Figuras decorativas */
+.floating-shape {
+  position: absolute;
+  font-size: 42px;
+  opacity: 0.14;
+  pointer-events: none;
+  animation: flotar 6s ease-in-out infinite;
+}
+
+.shape-1 { top: 40px; left: 60px; }
+.shape-2 { top: 120px; right: 120px; animation-delay: 1s; }
+.shape-3 { top: 280px; left: 100px; animation-delay: 2s; }
+.shape-4 { top: 450px; right: 80px; animation-delay: 3s; }
+.shape-5 { bottom: 120px; left: 80px; animation-delay: 1.5s; }
+.shape-6 { bottom: 60px; right: 150px; animation-delay: 2.5s; }
+.shape-7 { top: 200px; left: 45%; animation-delay: 1s; }
+.shape-8 { bottom: 180px; left: 30%; animation-delay: 3.5s; }
+.shape-9 { top: 500px; right: 35%; animation-delay: 4s; }
+
+@keyframes flotar {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(3deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.panel-alumno-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.panel-header-card {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 28px;
+  padding: 35px 25px;
+  text-align: center;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+  border: 3px solid #ffffff;
+  margin-bottom: 40px;
+}
+
+.panel-header-card h1 {
+  margin: 0;
+  font-size: 2.3rem;
+  color: #40324d;
+}
+
+.panel-header-card p {
+  margin: 16px 0 8px;
+  font-size: 1.35rem;
+  color: #333;
+}
+
+.subtexto {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 1rem;
+  color: #666;
+}
+
+.panel-botones {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 25px;
+}
+
+.btn-principal,
+.btn-salir,
+.btn-ver {
+  border: none;
+  border-radius: 16px;
+  padding: 14px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: inherit;
+}
+
+.btn-principal {
+  background: linear-gradient(135deg, #53d18d, #3ba0ff);
+  color: white;
+  box-shadow: 0 8px 18px rgba(59, 160, 255, 0.25);
+}
+
+.btn-salir {
+  background: linear-gradient(135deg, #ffb347, #ff6b6b);
+  color: white;
+  box-shadow: 0 8px 18px rgba(255, 107, 107, 0.25);
+}
+
+.btn-ver {
+  width: 100%;
+  margin-top: 16px;
+  background: linear-gradient(135deg, #8b5cf6, #4f46e5);
+  color: white;
+  box-shadow: 0 8px 18px rgba(79, 70, 229, 0.25);
+}
+
+.btn-principal:hover,
+.btn-salir:hover,
+.btn-ver:hover {
+  transform: translateY(-3px) scale(1.02);
+  opacity: 0.96;
+}
+
+.contenidos-section h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #40324d;
+  margin-bottom: 28px;
+}
+
+.mensaje-panel {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 18px;
+  text-align: center;
+  color: #555;
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
+}
+
+.contenidos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.contenido-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.07);
+  transition: all 0.25s ease;
+  border: 2px solid #fff;
+  position: relative;
+}
+
+.contenido-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.1);
+}
+
+.contenido-icono {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffd166, #ff9f1c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin: 0 auto 16px;
+  box-shadow: 0 6px 14px rgba(255, 159, 28, 0.25);
+}
+
+.contenido-card h3 {
+  margin: 0 0 12px;
+  text-align: center;
+  font-size: 1.45rem;
+  color: #2f2f2f;
+}
+
+.grado-badge {
+  width: fit-content;
+  margin: 0 auto 15px;
+  padding: 8px 18px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, #7ed957, #4caf50);
+  color: white;
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+.contenido-card p {
+  color: #555;
+  line-height: 1.6;
+  text-align: center;
+  min-height: 72px;
+}
+
+@media (max-width: 768px) {
+  .panel-header-card h1 {
+    font-size: 1.8rem;
+  }
+
+  .panel-header-card p {
+    font-size: 1.1rem;
+  }
+
+  .contenidos-section h2 {
+    font-size: 1.6rem;
+  }
+
+  .btn-principal,
+  .btn-salir {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .floating-shape {
+    font-size: 28px;
+  }
+}
