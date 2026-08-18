@@ -568,6 +568,100 @@ app.get("/contenidos/:id/preguntas", (req, res) => {
     return res.json(result)
   })
 })
+// ========================================
+// ACTUALIZAR PREGUNTA
+// ========================================
+
+app.put("/preguntas/:id", (req, res) => {
+  const { id } = req.params
+
+  const {
+    pregunta,
+    opcion_a,
+    opcion_b,
+    opcion_c,
+    opcion_d,
+    respuesta_correcta,
+    puntaje
+  } = req.body
+
+  if (
+    !pregunta ||
+    !opcion_a ||
+    !opcion_b ||
+    !opcion_c ||
+    !opcion_d ||
+    !respuesta_correcta ||
+    puntaje === undefined ||
+    puntaje === null
+  ) {
+    return res.status(400).json({
+      status: "error",
+      mensaje: "Todos los campos son obligatorios"
+    })
+  }
+
+  const respuesta = respuesta_correcta
+    .toString()
+    .trim()
+    .toUpperCase()
+
+  if (!["A", "B", "C", "D"].includes(respuesta)) {
+    return res.status(400).json({
+      status: "error",
+      mensaje: "La respuesta correcta debe ser A, B, C o D"
+    })
+  }
+
+  const sql = `
+    UPDATE preguntas
+    SET
+      pregunta = ?,
+      opcion_a = ?,
+      opcion_b = ?,
+      opcion_c = ?,
+      opcion_d = ?,
+      respuesta_correcta = ?,
+      puntaje = ?
+    WHERE id = ?
+  `
+
+  conexion.query(
+    sql,
+    [
+      pregunta,
+      opcion_a,
+      opcion_b,
+      opcion_c,
+      opcion_d,
+      respuesta,
+      puntaje,
+      id
+    ],
+    (err, result) => {
+      if (err) {
+        console.log("Error al actualizar pregunta:", err)
+
+        return res.status(500).json({
+          status: "error",
+          mensaje: "Error al actualizar pregunta"
+        })
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          status: "error",
+          mensaje: "Pregunta no encontrada"
+        })
+      }
+
+      return res.json({
+        status: "ok",
+        mensaje: "Pregunta actualizada correctamente"
+      })
+    }
+  )
+})
 
 // ========================================
 // SERVIDOR
