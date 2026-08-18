@@ -1,6 +1,13 @@
+
+
+.admin-inicio-page,
+.admin-inicio-page * {
+  box-sizing: border-box;
+}
+
 .admin-inicio-page {
   min-height: 100vh;
-  margin-left: 310px;
+  margin-left: 250px;
   padding: 40px 30px;
   background: linear-gradient(180deg, #f4f8ff 0%, #eef8f2 100%);
   position: relative;
@@ -702,4 +709,8 @@
   .detalle-modal-acciones {
     flex-direction: column;
   }
+}
+.sidebar {
+  box-sizing: border-box;
+  width: 250px;
 }
