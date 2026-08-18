@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import Sidebar from "../components/Sidebar"
 import "../App.css"
-import "./PanelAlumno.css"
+import "./Panel.css"
 import { API_URL } from "../config"
 
 
