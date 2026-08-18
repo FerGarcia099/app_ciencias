@@ -163,39 +163,69 @@ const guardarPreguntaEditada = async () => {
         <main className="panel-maestro-container">
 
           {/* Encabezado */}
-          <section className="maestro-bienvenida">
-            <div className="maestro-avatar">
-              👨‍🏫
-            </div>
+          <section className="maestro-bienvenida nueva-bienvenida">
 
-            <div className="maestro-bienvenida-texto">
-              <span className="maestro-mini-titulo">
-                📘 Plataforma educativa
-              </span>
+  <div className="bienvenida-decoracion bienvenida-libro">
+    📚
+  </div>
 
-              <h1>
-                ¡Bienvenido, {nombre || "Administrador"}!
-              </h1>
+  <div className="bienvenida-decoracion bienvenida-lapiz">
+    ✏️
+  </div>
 
-              <p>
-                Administra tus contenidos y prepara nuevas
-                actividades para los estudiantes.
-              </p>
-            </div>
+  <div className="bienvenida-principal">
 
-            <div className="maestro-total-contenidos">
-              <span>📚</span>
+    <div className="maestro-avatar">
+      👨‍🏫
+    </div>
 
-              <div>
-                <strong>{contenidos.length}</strong>
-                <small>
-                  {contenidos.length === 1
-                    ? "Contenido"
-                    : "Contenidos"}
-                </small>
-              </div>
-            </div>
-          </section>
+    <div className="maestro-bienvenida-texto">
+
+      <span className="maestro-mini-titulo">
+        ✨ Panel educativo
+      </span>
+
+      <h1>
+        ¡Hola, {nombre || "Administrador"}!
+      </h1>
+
+      <p>
+        Bienvenido a tu espacio de aprendizaje.
+        Desde aquí puedes administrar contenidos,
+        preguntas y revisar el progreso de tus estudiantes.
+      </p>
+
+    </div>
+
+  </div>
+
+  <div className="bienvenida-estadisticas">
+
+    <div className="bienvenida-stat stat-contenidos">
+      <div className="stat-icono">
+        📚
+      </div>
+
+      <div>
+        <strong>{contenidos.length}</strong>
+        <span>Contenidos</span>
+      </div>
+    </div>
+
+    <div className="bienvenida-stat stat-area">
+      <div className="stat-icono">
+        🌱
+      </div>
+
+      <div>
+        <strong>Ciencias</strong>
+        <span>Naturales</span>
+      </div>
+    </div>
+
+  </div>
+
+</section>
 
           {/* Contenidos */}
           <section className="maestro-contenidos-card">
