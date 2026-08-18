@@ -1,46 +1,75 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import "./PanelAlumno.css";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+import { useEffect, useState } from "react"
+import axios from "axios"
+import { useNavigate } from "react-router-dom"
+import "./PanelAlumno.css"
+import { API_URL } from "../config"
 
 export default function PanelAlumno() {
-  const navigate = useNavigate();
-  const [contenidos, setContenidos] = useState([]);
-  const [cargando, setCargando] = useState(true);
+  const navigate = useNavigate()
+  const [contenidos, setContenidos] = useState([])
+  const [cargando, setCargando] = useState(true)
 
-  const usuarioGuardado = JSON.parse(localStorage.getItem("usuario")) || {};
-  const nombreAlumno = usuarioGuardado.nombre || "Estudiante";
+  const usuarioGuardado = JSON.parse(localStorage.getItem("usuario") || "null")
+  const nombreAlumno = usuarioGuardado?.nombre || "Estudiante"
+  const usuarioId = usuarioGuardado?.id || localStorage.getItem("usuarioId")
 
   useEffect(() => {
-    obtenerContenidos();
-  }, []);
+    if (!usuarioId) {
+      navigate("/")
+      return
+    }
+
+    obtenerContenidos()
+  }, [])
 
   const obtenerContenidos = async () => {
     try {
-      const response = await axios.get(`${API_URL}/contenidos`);
-      setContenidos(response.data || []);
+      setCargando(true)
+      const response = await axios.get(`${API_URL}/alumnos/${usuarioId}/progreso`)
+      setContenidos(Array.isArray(response.data) ? response.data : [])
     } catch (error) {
-      console.error("Error al obtener contenidos:", error);
-      alert("Error al obtener contenidos");
+      console.error("Error al obtener contenidos:", error)
+      alert("Error al obtener contenidos")
     } finally {
-      setCargando(false);
+      setCargando(false)
     }
-  };
+  }
 
   const cerrarSesion = () => {
-    localStorage.removeItem("usuario");
-    navigate("/");
-  };
+    localStorage.clear()
+    navigate("/")
+  }
 
-  const verPreguntas = (id) => {
-  navigate(`/contenido-alumno/${id}`)
-};
+  const abrirActividad = (contenido) => {
+    const bloqueado =
+      contenido.estado === "completado" && !contenido.puede_reintentar
+
+    if (bloqueado) {
+      alert("Ya completaste esta actividad. Tu maestro debe habilitar un nuevo intento. 🔒")
+      return
+    }
+
+    navigate(`/contenido-alumno/${contenido.id}`)
+  }
+
+  const obtenerProgreso = (contenido) => {
+    if (contenido.estado === "completado") return 100
+
+    const total = Number(contenido.preguntas_totales) || Number(contenido.total_preguntas) || 0
+    const respondidas = Number(contenido.preguntas_respondidas) || 0
+
+    return total > 0 ? Math.round((respondidas / total) * 100) : 0
+  }
+
+  const textoBoton = (contenido) => {
+    if (contenido.estado === "sin_iniciar") return "🚀 Comenzar actividad"
+    if (contenido.estado === "en_progreso") return "▶️ Continuar actividad"
+    if (contenido.puede_reintentar) return "🔓 Nuevo intento habilitado"
+    return "🔒 Actividad completada"
+  }
 
   return (
     <div className="panel-alumno-page">
-      {/* Figuras decorativas del fondo */}
       <div className="floating-shape shape-1">📚</div>
       <div className="floating-shape shape-2">✏️</div>
       <div className="floating-shape shape-3">🎒</div>
@@ -58,7 +87,7 @@ export default function PanelAlumno() {
             ¡Bienvenido <strong>{nombreAlumno}</strong>!
           </p>
           <span className="subtexto">
-            Aprende, responde y diviértete explorando tus contenidos.
+            Aprende, responde y revisa tu progreso en cada tema.
           </span>
 
           <div className="panel-botones">
@@ -70,7 +99,7 @@ export default function PanelAlumno() {
                   ?.scrollIntoView({ behavior: "smooth" })
               }
             >
-              📘 Ver Contenidos y Preguntas
+              📘 Ver contenidos y actividades
             </button>
 
             <button className="btn-salir" onClick={cerrarSesion}>
@@ -90,34 +119,75 @@ export default function PanelAlumno() {
             </div>
           ) : (
             <div className="contenidos-grid">
-              {contenidos.map((contenido) => (
-                <div className="contenido-card" key={contenido.id}>
-                  <div className="contenido-icono">📝</div>
+              {contenidos.map((contenido) => {
+                const progreso = obtenerProgreso(contenido)
+                const bloqueado =
+                  contenido.estado === "completado" && !contenido.puede_reintentar
 
-                  <h3>{contenido.titulo || "Sin título"}</h3>
+                return (
+                  <div className="contenido-card" key={contenido.id}>
+                    <div className="contenido-icono">📝</div>
 
-                  <div className="grado-badge">
-                    Grado: {contenido.grado || "No definido"}
+                    <h3>{contenido.titulo || "Sin título"}</h3>
+
+                    <div className="grado-badge">
+                      Grado: {contenido.grado || "No definido"}
+                    </div>
+
+                    <p>
+                      {contenido.descripcion ||
+                        "Contenido disponible para aprender y responder preguntas."}
+                    </p>
+
+                    <div className="estado-actividad-row">
+                      <span className={`estado-actividad estado-${contenido.estado}`}>
+                        {contenido.estado === "sin_iniciar" && "⚪ Sin iniciar"}
+                        {contenido.estado === "en_progreso" && "🟡 En progreso"}
+                        {contenido.estado === "completado" && "✅ Completado"}
+                      </span>
+
+                      {contenido.estado === "completado" && (
+                        <strong className="resultado-mini">
+                          {Number(contenido.puntaje_obtenido) || 0}/
+                          {Number(contenido.puntaje_total) || 0} · {Math.round(Number(contenido.porcentaje) || 0)}%
+                        </strong>
+                      )}
+                    </div>
+
+                    <div className="progreso-alumno-card">
+                      <div className="progreso-alumno-info">
+                        <span>Avance</span>
+                        <strong>{progreso}%</strong>
+                      </div>
+
+                      <div className="progreso-alumno-barra">
+                        <div
+                          className="progreso-alumno-relleno"
+                          style={{ width: `${progreso}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    {contenido.estado === "completado" && contenido.puede_reintentar && (
+                      <div className="reintento-habilitado-aviso">
+                        🎉 Tu maestro habilitó un nuevo intento.
+                      </div>
+                    )}
+
+                    <button
+                      className={`btn-ver ${bloqueado ? "btn-ver-bloqueado" : ""}`}
+                      onClick={() => abrirActividad(contenido)}
+                      disabled={bloqueado}
+                    >
+                      {textoBoton(contenido)}
+                    </button>
                   </div>
-
-                  <p>
-                    {contenido.descripcion ||
-                      contenido.contenido ||
-                      "Contenido disponible para aprender y responder preguntas."}
-                  </p>
-
-                  <button
-  className="btn-ver"
-  onClick={() => verPreguntas(contenido.id)}
->
-  👀 Ver preguntas
-</button>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </section>
       </div>
     </div>
-  );
+  )
 }

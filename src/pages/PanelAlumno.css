@@ -837,3 +837,73 @@
     flex-direction: column;
   }
 }
+/* ========================================
+   ESTADO Y PROGRESO DE ACTIVIDADES
+======================================== */
+.estado-actividad-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.estado-actividad {
+  display: inline-block;
+  padding: 7px 11px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.estado-sin_iniciar { background: #f0eff2; color: #79727f; }
+.estado-en_progreso { background: #fff3cb; color: #9a7113; }
+.estado-completado { background: #eaf9ed; color: #3f9d50; }
+.resultado-mini { color: #4f4559; font-size: 12px; }
+
+.progreso-alumno-card {
+  margin: 14px 0;
+  padding: 12px;
+  border-radius: 14px;
+  background: #f7f5fb;
+}
+
+.progreso-alumno-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 7px;
+  color: #706878;
+  font-size: 12px;
+}
+
+.progreso-alumno-barra {
+  height: 9px;
+  border-radius: 50px;
+  overflow: hidden;
+  background: #e8e3f2;
+}
+
+.progreso-alumno-relleno {
+  height: 100%;
+  border-radius: 50px;
+  background: linear-gradient(90deg, #835ff1, #4fa6ee);
+  transition: width 0.3s ease;
+}
+
+.reintento-habilitado-aviso {
+  margin-bottom: 12px;
+  padding: 9px 11px;
+  border-radius: 12px;
+  background: #ecfaef;
+  color: #3f9b51;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.btn-ver-bloqueado,
+.btn-ver-bloqueado:hover {
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.65;
+  background: linear-gradient(135deg, #aaa5b2, #8e8996);
+}

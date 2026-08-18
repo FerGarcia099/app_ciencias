@@ -643,3 +643,24 @@
     flex-direction: column;
   }
 }
+/* =========================================
+   ADMINISTRAR / ELIMINAR CONTENIDOS
+========================================= */
+.btn-archivar-contenido,
+.btn-restaurar-contenido {
+  border: none;
+  border-radius: 13px;
+  padding: 10px 14px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  color: white;
+  transition: 0.2s;
+}
+
+.btn-archivar-contenido { background: linear-gradient(135deg, #f26c6c, #df4c5f); }
+.btn-restaurar-contenido { background: linear-gradient(135deg, #58c675, #3eaa5d); }
+.btn-archivar-contenido:hover,
+.btn-restaurar-contenido:hover { transform: translateY(-2px); }
+.contenido-archivado-row { opacity: 0.82; background: #f4f3f6; }

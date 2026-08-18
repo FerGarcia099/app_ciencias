@@ -14,11 +14,8 @@ function Sidebar() {
 
   return (
     <aside className="sidebar">
-
       <div className="sidebar-brand">
-        <div className="sidebar-brand-icon">
-          🎒
-        </div>
+        <div className="sidebar-brand-icon">🎒</div>
 
         <div>
           <h2>Eco Holistic</h2>
@@ -26,12 +23,9 @@ function Sidebar() {
         </div>
       </div>
 
-      <div className="sidebar-separador">
-        MENÚ PRINCIPAL
-      </div>
+      <div className="sidebar-separador">MENÚ PRINCIPAL</div>
 
       <nav className="sidebar-nav">
-
         <NavLink to="/panel" className={claseLink}>
           <span className="sidebar-icon">🏠</span>
           <span>Inicio</span>
@@ -57,18 +51,18 @@ function Sidebar() {
           <span>Contenidos</span>
         </NavLink>
 
+        <NavLink to="/seguimiento" className={claseLink}>
+          <span className="sidebar-icon">📊</span>
+          <span>Seguimiento</span>
+        </NavLink>
       </nav>
 
       <div className="sidebar-footer">
-        <button
-          className="sidebar-salir"
-          onClick={salir}
-        >
+        <button className="sidebar-salir" onClick={salir}>
           <span>🚪</span>
           Cerrar sesión
         </button>
       </div>
-
     </aside>
   )
 }

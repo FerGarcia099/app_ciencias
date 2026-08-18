@@ -2,7 +2,7 @@ import { useState } from "react"
 import axios from "axios"
 import "./App.css"
 import { useNavigate } from "react-router-dom"
-import { API_URL } from "./config";
+import { API_URL } from "./config"
 
 function App() {
   const navigate = useNavigate()
@@ -17,35 +17,42 @@ function App() {
       return
     }
 
-    axios.post(`${API_URL}/login`, {
-      usuario,
-      password
-    })
-    .then(res => {
-      if (res.data.status === "ok") {
-        // Guardar datos del usuario
-        localStorage.setItem("nombre", res.data.nombre)
-        localStorage.setItem("rol", res.data.rol)
+    axios
+      .post(`${API_URL}/login`, {
+        usuario,
+        password
+      })
+      .then((res) => {
+        if (res.data.status === "ok") {
+          const usuarioSesion = {
+            id: res.data.id,
+            nombre: res.data.nombre,
+            usuario: res.data.usuario,
+            rol: res.data.rol
+          }
 
-        setMensaje("Bienvenido " + res.data.nombre)
+          localStorage.setItem("usuario", JSON.stringify(usuarioSesion))
+          localStorage.setItem("usuarioId", String(res.data.id))
+          localStorage.setItem("nombre", res.data.nombre)
+          localStorage.setItem("rol", res.data.rol)
 
-        // Redireccionar según el rol
-        if (res.data.rol === "maestro") {
-          navigate("/panel")
-        } else if (res.data.rol === "alumno") {
-          navigate("/panelAlumno")
+          setMensaje("Bienvenido " + res.data.nombre)
+
+          if (res.data.rol === "maestro") {
+            navigate("/panel")
+          } else if (res.data.rol === "alumno") {
+            navigate("/panelAlumno")
+          } else {
+            setMensaje("Rol no válido")
+          }
         } else {
-          setMensaje("Rol no válido")
+          setMensaje(res.data.mensaje || "Usuario incorrecto")
         }
-
-      } else {
-        setMensaje(res.data.mensaje || "Usuario incorrecto")
-      }
-    })
-    .catch(error => {
-      console.error(error)
-      setMensaje("No se pudo conectar con el servidor")
-    })
+      })
+      .catch((error) => {
+        console.error(error)
+        setMensaje("No se pudo conectar con el servidor")
+      })
   }
 
   const presionarEnter = (e) => {
@@ -75,9 +82,7 @@ function App() {
           onKeyDown={presionarEnter}
         />
 
-        <button onClick={login}>
-          Entrar
-        </button>
+        <button onClick={login}>Entrar</button>
 
         {mensaje && <h3>{mensaje}</h3>}
       </div>
