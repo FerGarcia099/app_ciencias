@@ -1003,208 +1003,477 @@ app.post("/intentos/iniciar", autorizarRoles("alumno"), (req, res) => {
 })
 
 // Guarda/actualiza una respuesta mientras el intento está en progreso.
-app.put("/intentos/:id/respuesta", autorizarRoles("alumno"), (req, res) => {
-  const { id } = req.params
-  const { pregunta_id, respuesta_seleccionada } = req.body
+// ========================================
+// GUARDAR / ACTUALIZAR RESPUESTA
+// ========================================
 
-  const respuesta = respuesta_seleccionada?.toString().trim().toUpperCase()
+app.put(
+  "/intentos/:id/respuesta",
+  autorizarRoles("alumno"),
+  (req, res) => {
+    const { id } = req.params
+    const { pregunta_id, respuesta_seleccionada } = req.body
 
-  if (!pregunta_id || !["A", "B", "C", "D"].includes(respuesta)) {
-    return res.status(400).json({
-      status: "error",
-      mensaje: "Pregunta y respuesta válida son obligatorias"
-    })
-  }
+    const respuesta = respuesta_seleccionada
+      ?.toString()
+      .trim()
+      .toUpperCase()
 
-  const sqlIntento = `
-    SELECT *
-    FROM intentos_evaluacion
-    WHERE id = ? AND usuario_id = ? AND estado = 'en_progreso'
-    LIMIT 1
-  `
-
-  conexion.query(sqlIntento, [id, req.usuario.id], (err, intentos) => {
-    if (err) {
-      return res.status(500).json({ status: "error", mensaje: "Error al consultar el intento" })
+    if (
+      !pregunta_id ||
+      !["A", "B", "C", "D"].includes(respuesta)
+    ) {
+      return res.status(400).json({
+        status: "error",
+        mensaje: "Pregunta y respuesta válida son obligatorias"
+      })
     }
 
-    if (intentos.length === 0) {
-      return res.status(409).json({ status: "error", mensaje: "El intento ya no está disponible para responder" })
-    }
-
-    const intento = intentos[0]
-
-    const sqlPregunta = `
-      SELECT id, respuesta_correcta, puntaje
-      FROM preguntas
-      WHERE id = ? AND contenido_id = ?
+    const sqlIntento = `
+      SELECT *
+      FROM intentos_evaluacion
+      WHERE
+        id = ?
+        AND usuario_id = ?
+        AND estado = 'en_progreso'
       LIMIT 1
     `
 
-    conexion.query(sqlPregunta, [pregunta_id, intento.contenido_id], (err, preguntas) => {
-      if (err) {
-        return res.status(500).json({ status: "error", mensaje: "Error al consultar la pregunta" })
-      }
+    conexion.query(
+      sqlIntento,
+      [id, req.usuario.id],
+      (err, intentos) => {
+        if (err) {
+          console.log("Error al consultar intento:", err)
 
-      if (preguntas.length === 0) {
-        return res.status(404).json({ status: "error", mensaje: "Pregunta no encontrada" })
-      }
+          return res.status(500).json({
+            status: "error",
+            mensaje: "Error al consultar el intento"
+          })
+        }
 
-      const pregunta = preguntas[0]
-      const correcta = pregunta.respuesta_correcta.toString().trim().toUpperCase() === respuesta
-      const puntos = correcta ? Number(pregunta.puntaje) || 1 : 0
+        if (intentos.length === 0) {
+          return res.status(409).json({
+            status: "error",
+            mensaje:
+              "El intento ya no está disponible para responder"
+          })
+        }
 
-      const sqlRespuesta = `
-        INSERT INTO respuestas_estudiante
-        (
-          intento_id,
-          pregunta_id,
-          respuesta_seleccionada,
-          es_correcta,
-          puntaje_obtenido
-        )
-        VALUES (?, ?, ?, ?, ?)
-        ON DUPLICATE KEY UPDATE
-          respuesta_seleccionada = VALUES(respuesta_seleccionada),
-          es_correcta = VALUES(es_correcta),
-          puntaje_obtenido = VALUES(puntaje_obtenido),
-          fecha_respuesta = CURRENT_TIMESTAMP
-      `
+        const intento = intentos[0]
 
-      conexion.query(
-        sqlRespuesta,
-        [id, pregunta_id, respuesta, correcta ? 1 : 0, puntos],
-        (err) => {
-          if (err) {
-            console.log("Error al guardar respuesta:", err)
-            return res.status(500).json({ status: "error", mensaje: "Error al guardar la respuesta" })
-          }
+        const sqlPregunta = `
+          SELECT
+            id,
+            respuesta_correcta,
+            puntaje
+          FROM preguntas
+          WHERE
+            id = ?
+            AND contenido_id = ?
+          LIMIT 1
+        `
 
-          const sqlResumen = `
-            SELECT
-              COUNT(*) AS preguntas_respondidas,
-              COALESCE(SUM(puntaje_obtenido), 0) AS puntaje_obtenido
-            FROM respuestas_estudiante
-            WHERE intento_id = ?
-          `
-
-          conexion.query(sqlResumen, [id], (err, resumenRows) => {
+        conexion.query(
+          sqlPregunta,
+          [pregunta_id, intento.contenido_id],
+          (err, preguntas) => {
             if (err) {
-              return res.status(500).json({ status: "error", mensaje: "Respuesta guardada, pero no se pudo actualizar el progreso" })
+              console.log("Error al consultar pregunta:", err)
+
+              return res.status(500).json({
+                status: "error",
+                mensaje: "Error al consultar la pregunta"
+              })
             }
 
-            const preguntasRespondidas = Number(resumenRows[0].preguntas_respondidas) || 0
-            const puntajeObtenido = Number(resumenRows[0].puntaje_obtenido) || 0
+            if (preguntas.length === 0) {
+              return res.status(404).json({
+                status: "error",
+                mensaje:
+                  "La pregunta no pertenece a esta actividad"
+              })
+            }
+
+            const pregunta = preguntas[0]
+
+            const correcta =
+              pregunta.respuesta_correcta
+                .toString()
+                .trim()
+                .toUpperCase() === respuesta
+
+            const puntos = correcta
+              ? Number(pregunta.puntaje) || 1
+              : 0
+
+            const sqlRespuesta = `
+              INSERT INTO respuestas_estudiante
+              (
+                intento_id,
+                pregunta_id,
+                respuesta_seleccionada,
+                es_correcta,
+                puntaje_obtenido
+              )
+              VALUES (?, ?, ?, ?, ?)
+
+              ON DUPLICATE KEY UPDATE
+                respuesta_seleccionada =
+                  VALUES(respuesta_seleccionada),
+
+                es_correcta =
+                  VALUES(es_correcta),
+
+                puntaje_obtenido =
+                  VALUES(puntaje_obtenido),
+
+                fecha_respuesta =
+                  CURRENT_TIMESTAMP
+            `
 
             conexion.query(
-              `UPDATE intentos_evaluacion
-               SET preguntas_respondidas = ?, puntaje_obtenido = ?
-               WHERE id = ?`,
-              [preguntasRespondidas, puntajeObtenido, id],
+              sqlRespuesta,
+              [
+                id,
+                pregunta_id,
+                respuesta,
+                correcta ? 1 : 0,
+                puntos
+              ],
               (err) => {
                 if (err) {
-                  return res.status(500).json({ status: "error", mensaje: "Respuesta guardada, pero no se pudo actualizar el progreso" })
+                  console.log(
+                    "Error al guardar respuesta:",
+                    err
+                  )
+
+                  return res.status(500).json({
+                    status: "error",
+                    mensaje: "Error al guardar la respuesta"
+                  })
+                }
+
+                const sqlResumen = `
+                  SELECT
+                    COUNT(r.id) AS preguntas_respondidas,
+
+                    COALESCE(
+                      SUM(r.puntaje_obtenido),
+                      0
+                    ) AS puntaje_obtenido
+
+                  FROM respuestas_estudiante r
+
+                  INNER JOIN preguntas p
+                    ON p.id = r.pregunta_id
+
+                  WHERE
+                    r.intento_id = ?
+                    AND p.contenido_id = ?
+                `
+
+                conexion.query(
+                  sqlResumen,
+                  [id, intento.contenido_id],
+                  (err, resumenRows) => {
+                    if (err) {
+                      console.log(
+                        "Error al calcular progreso:",
+                        err
+                      )
+
+                      return res.status(500).json({
+                        status: "error",
+                        mensaje:
+                          "Respuesta guardada, pero no se pudo actualizar el progreso"
+                      })
+                    }
+
+                    const preguntasRespondidas =
+                      Number(
+                        resumenRows[0]
+                          .preguntas_respondidas
+                      ) || 0
+
+                    const puntajeObtenido =
+                      Number(
+                        resumenRows[0]
+                          .puntaje_obtenido
+                      ) || 0
+
+                    if (
+                      preguntasRespondidas >
+                      Number(intento.preguntas_totales)
+                    ) {
+                      return res.status(409).json({
+                        status: "error",
+                        mensaje:
+                          "Se detectó una inconsistencia en las respuestas"
+                      })
+                    }
+
+                    const sqlActualizar = `
+                      UPDATE intentos_evaluacion
+                      SET
+                        preguntas_respondidas = ?,
+                        puntaje_obtenido = ?
+                      WHERE id = ?
+                    `
+
+                    conexion.query(
+                      sqlActualizar,
+                      [
+                        preguntasRespondidas,
+                        puntajeObtenido,
+                        id
+                      ],
+                      (err) => {
+                        if (err) {
+                          console.log(
+                            "Error al actualizar intento:",
+                            err
+                          )
+
+                          return res.status(500).json({
+                            status: "error",
+                            mensaje:
+                              "Respuesta guardada, pero no se pudo actualizar el progreso"
+                          })
+                        }
+
+                        return res.json({
+                          status: "ok",
+                          preguntas_respondidas:
+                            preguntasRespondidas,
+                          preguntas_totales:
+                            Number(
+                              intento.preguntas_totales
+                            ),
+                          puntaje_obtenido:
+                            puntajeObtenido
+                        })
+                      }
+                    )
+                  }
+                )
+              }
+            )
+          }
+        )
+      }
+    )
+  }
+)
+
+// Finaliza definitivamente el intento actual.
+// ========================================
+// FINALIZAR EVALUACIÓN
+// ========================================
+
+app.post(
+  "/intentos/:id/finalizar",
+  autorizarRoles("alumno"),
+  (req, res) => {
+    const { id } = req.params
+
+    const sql = `
+      SELECT
+        i.*,
+
+        COUNT(p.id)
+          AS respuestas_guardadas,
+
+        COALESCE(
+          SUM(
+            CASE
+              WHEN p.id IS NOT NULL
+              THEN r.puntaje_obtenido
+              ELSE 0
+            END
+          ),
+          0
+        ) AS puntos_calculados
+
+      FROM intentos_evaluacion i
+
+      LEFT JOIN respuestas_estudiante r
+        ON r.intento_id = i.id
+
+      LEFT JOIN preguntas p
+        ON p.id = r.pregunta_id
+        AND p.contenido_id = i.contenido_id
+
+      WHERE
+        i.id = ?
+        AND i.usuario_id = ?
+        AND i.estado = 'en_progreso'
+
+      GROUP BY i.id
+    `
+
+    conexion.query(
+      sql,
+      [id, req.usuario.id],
+      (err, rows) => {
+        if (err) {
+          console.log(
+            "Error al finalizar intento:",
+            err
+          )
+
+          return res.status(500).json({
+            status: "error",
+            mensaje: "Error al finalizar la actividad"
+          })
+        }
+
+        if (rows.length === 0) {
+          return res.status(409).json({
+            status: "error",
+            mensaje:
+              "Este intento ya fue finalizado o no existe"
+          })
+        }
+
+        const intento = rows[0]
+
+        const respondidas =
+          Number(intento.respuestas_guardadas) || 0
+
+        const totalPreguntas =
+          Number(intento.preguntas_totales) || 0
+
+        // Debe coincidir EXACTAMENTE
+        if (respondidas !== totalPreguntas) {
+          if (respondidas < totalPreguntas) {
+            return res.status(400).json({
+              status: "error",
+              mensaje:
+                `Faltan ${
+                  totalPreguntas - respondidas
+                } pregunta(s) por responder`
+            })
+          }
+
+          return res.status(400).json({
+            status: "error",
+            mensaje:
+              "La cantidad de respuestas no coincide con las preguntas de la actividad"
+          })
+        }
+
+        const puntos =
+          Number(intento.puntos_calculados) || 0
+
+        const totalPuntos =
+          Number(intento.puntaje_total) || 0
+
+        const porcentajeCalculado =
+          totalPuntos > 0
+            ? Math.round(
+                (puntos / totalPuntos) * 10000
+              ) / 100
+            : 0
+
+        // Protección: nunca menos de 0 ni más de 100.
+        const porcentaje = Math.min(
+          100,
+          Math.max(0, porcentajeCalculado)
+        )
+
+        const sqlUpdate = `
+          UPDATE intentos_evaluacion
+
+          SET
+            estado = 'completado',
+            preguntas_respondidas = ?,
+            puntaje_obtenido = ?,
+            porcentaje = ?,
+            reintento_habilitado = 0,
+            fecha_fin = CURRENT_TIMESTAMP
+
+          WHERE id = ?
+        `
+
+        conexion.query(
+          sqlUpdate,
+          [
+            respondidas,
+            puntos,
+            porcentaje,
+            id
+          ],
+          (err) => {
+            if (err) {
+              console.log(
+                "Error al guardar resultado:",
+                err
+              )
+
+              return res.status(500).json({
+                status: "error",
+                mensaje:
+                  "Error al guardar el resultado final"
+              })
+            }
+
+            obtenerDetalleRespuestasIntento(
+              id,
+              (
+                detalleError,
+                detalleRespuestas
+              ) => {
+                if (detalleError) {
+                  console.log(
+                    "Error al recuperar correcciones:",
+                    detalleError
+                  )
+
+                  return res.status(500).json({
+                    status: "error",
+                    mensaje:
+                      "Resultado guardado, pero no se pudo recuperar el detalle"
+                  })
                 }
 
                 return res.json({
                   status: "ok",
-                  preguntas_respondidas: preguntasRespondidas,
-                  preguntas_totales: Number(intento.preguntas_totales),
-                  puntaje_obtenido: puntajeObtenido
+
+                  resultado: {
+                    intento_id: Number(id),
+
+                    numero_intento:
+                      Number(
+                        intento.numero_intento
+                      ),
+
+                    preguntas_totales:
+                      totalPreguntas,
+
+                    preguntas_respondidas:
+                      respondidas,
+
+                    puntaje_obtenido:
+                      puntos,
+
+                    puntaje_total:
+                      totalPuntos,
+
+                    porcentaje
+                  },
+
+                  detalle_respuestas:
+                    detalleRespuestas
                 })
               }
             )
-          })
-        }
-      )
-    })
-  })
-})
-
-// Finaliza definitivamente el intento actual.
-app.post("/intentos/:id/finalizar", autorizarRoles("alumno"), (req, res) => {
-  const { id } = req.params
-
-  const sql = `
-    SELECT
-      i.*,
-      COUNT(r.id) AS respuestas_guardadas,
-      COALESCE(SUM(r.puntaje_obtenido), 0) AS puntos_calculados
-    FROM intentos_evaluacion i
-    LEFT JOIN respuestas_estudiante r ON r.intento_id = i.id
-    WHERE i.id = ? AND i.usuario_id = ? AND i.estado = 'en_progreso'
-    GROUP BY i.id
-  `
-
-  conexion.query(sql, [id, req.usuario.id], (err, rows) => {
-    if (err) {
-      console.log("Error al finalizar intento:", err)
-      return res.status(500).json({ status: "error", mensaje: "Error al finalizar la actividad" })
-    }
-
-    if (rows.length === 0) {
-      return res.status(409).json({ status: "error", mensaje: "Este intento ya fue finalizado o no existe" })
-    }
-
-    const intento = rows[0]
-    const respondidas = Number(intento.respuestas_guardadas) || 0
-    const totalPreguntas = Number(intento.preguntas_totales) || 0
-
-    if (respondidas < totalPreguntas) {
-      return res.status(400).json({
-        status: "error",
-        mensaje: `Faltan ${totalPreguntas - respondidas} pregunta(s) por responder`
-      })
-    }
-
-    const puntos = Number(intento.puntos_calculados) || 0
-    const totalPuntos = Number(intento.puntaje_total) || 0
-    const porcentaje = totalPuntos > 0 ? Math.round((puntos / totalPuntos) * 10000) / 100 : 0
-
-    const sqlUpdate = `
-      UPDATE intentos_evaluacion
-      SET
-        estado = 'completado',
-        preguntas_respondidas = ?,
-        puntaje_obtenido = ?,
-        porcentaje = ?,
-        reintento_habilitado = 0,
-        fecha_fin = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `
-
-    conexion.query(sqlUpdate, [respondidas, puntos, porcentaje, id], (err) => {
-      if (err) {
-        return res.status(500).json({ status: "error", mensaje: "Error al guardar el resultado final" })
+          }
+        )
       }
-
-      obtenerDetalleRespuestasIntento(id, (detalleError, detalleRespuestas) => {
-        if (detalleError) {
-          console.log("Error al recuperar correcciones:", detalleError)
-          return res.status(500).json({
-            status: "error",
-            mensaje: "Resultado guardado, pero no se pudo recuperar el detalle"
-          })
-        }
-
-        return res.json({
-          status: "ok",
-          resultado: {
-            intento_id: Number(id),
-            numero_intento: Number(intento.numero_intento),
-            preguntas_totales: totalPreguntas,
-            preguntas_respondidas: respondidas,
-            puntaje_obtenido: puntos,
-            puntaje_total: totalPuntos,
-            porcentaje
-          },
-          detalle_respuestas: detalleRespuestas
-        })
-      })
-    })
-  })
-})
-
+    )
+  }
+)
 // Progreso que verá el estudiante en su panel.
 app.get("/alumnos/:usuarioId/progreso", autorizarRoles("alumno"), (req, res) => {
   const { usuarioId } = req.params
@@ -1329,34 +1598,381 @@ app.get("/seguimiento", autorizarRoles("maestro"), (req, res) => {
   })
 })
 
-app.put("/seguimiento/:intentoId/habilitar-reintento", autorizarRoles("maestro"), (req, res) => {
-  const { intentoId } = req.params
+// ========================================
+// DASHBOARD DEL MAESTRO
+// ========================================
 
-  const sql = `
-    UPDATE intentos_evaluacion
-    SET reintento_habilitado = 1
-    WHERE id = ? AND estado = 'completado'
-  `
 
-  conexion.query(sql, [intentoId], (err, result) => {
-    if (err) {
-      console.log("Error al habilitar reintento:", err)
-      return res.status(500).json({ status: "error", mensaje: "Error al habilitar el reintento" })
-    }
+// ========================================
+// RESUMEN GENERAL
+// ========================================
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        status: "error",
-        mensaje: "No se encontró un intento completado para habilitar"
-      })
-    }
+app.get(
+  "/dashboard/resumen",
+  autorizarRoles("maestro"),
+  (req, res) => {
+    const sql = `
+      SELECT
 
-    return res.json({
-      status: "ok",
-      mensaje: "Nuevo intento habilitado correctamente"
-    })
-  })
-})
+        (
+          SELECT COUNT(*)
+          FROM usuarios
+          WHERE LOWER(TRIM(rol)) = 'alumno'
+        ) AS total_alumnos,
+
+        (
+          SELECT COUNT(*)
+          FROM contenidos
+          WHERE activo = 1
+        ) AS total_contenidos,
+
+        SUM(
+          CASE
+            WHEN ultimo.estado = 'completado'
+            THEN 1
+            ELSE 0
+          END
+        ) AS completadas,
+
+        SUM(
+          CASE
+            WHEN ultimo.estado = 'en_progreso'
+            THEN 1
+            ELSE 0
+          END
+        ) AS en_progreso,
+
+        SUM(
+          CASE
+            WHEN ultimo.id IS NULL
+            THEN 1
+            ELSE 0
+          END
+        ) AS sin_iniciar,
+
+        ROUND(
+          AVG(
+            CASE
+              WHEN ultimo.estado = 'completado'
+              THEN
+                LEAST(
+                  100,
+                  GREATEST(
+                    0,
+                    ultimo.porcentaje
+                  )
+                )
+              ELSE NULL
+            END
+          ),
+          2
+        ) AS promedio_general
+
+      FROM usuarios u
+
+      CROSS JOIN contenidos c
+
+      LEFT JOIN intentos_evaluacion ultimo
+        ON ultimo.id = (
+          SELECT i2.id
+          FROM intentos_evaluacion i2
+
+          WHERE
+            i2.usuario_id = u.id
+            AND
+            i2.contenido_id = c.id
+
+          ORDER BY
+            i2.numero_intento DESC,
+            i2.id DESC
+
+          LIMIT 1
+        )
+
+      WHERE
+        LOWER(TRIM(u.rol)) = 'alumno'
+        AND c.activo = 1
+    `
+
+    conexion.query(
+      sql,
+      (err, rows) => {
+        if (err) {
+          console.log(
+            "Error dashboard resumen:",
+            err
+          )
+
+          return res.status(500).json({
+            status: "error",
+            mensaje:
+              "Error al obtener el resumen del dashboard"
+          })
+        }
+
+        const row = rows[0] || {}
+
+        return res.json({
+          total_alumnos:
+            Number(row.total_alumnos) || 0,
+
+          total_contenidos:
+            Number(row.total_contenidos) || 0,
+
+          completadas:
+            Number(row.completadas) || 0,
+
+          en_progreso:
+            Number(row.en_progreso) || 0,
+
+          sin_iniciar:
+            Number(row.sin_iniciar) || 0,
+
+          promedio_general:
+            Number(row.promedio_general) || 0
+        })
+      }
+    )
+  }
+)
+
+
+// ========================================
+// RENDIMIENTO POR TEMA
+// ========================================
+
+app.get(
+  "/dashboard/rendimiento",
+  autorizarRoles("maestro"),
+  (req, res) => {
+    const sql = `
+      SELECT
+        c.id AS contenido_id,
+        c.titulo,
+        c.grado,
+
+        COUNT(
+          CASE
+            WHEN ultimo.estado = 'completado'
+            THEN 1
+          END
+        ) AS completadas,
+
+        ROUND(
+          AVG(
+            CASE
+              WHEN ultimo.estado = 'completado'
+              THEN
+                LEAST(
+                  100,
+                  GREATEST(
+                    0,
+                    ultimo.porcentaje
+                  )
+                )
+              ELSE NULL
+            END
+          ),
+          2
+        ) AS promedio
+
+      FROM contenidos c
+
+      CROSS JOIN usuarios u
+
+      LEFT JOIN intentos_evaluacion ultimo
+        ON ultimo.id = (
+          SELECT i2.id
+          FROM intentos_evaluacion i2
+
+          WHERE
+            i2.usuario_id = u.id
+            AND
+            i2.contenido_id = c.id
+
+          ORDER BY
+            i2.numero_intento DESC,
+            i2.id DESC
+
+          LIMIT 1
+        )
+
+      WHERE
+        c.activo = 1
+        AND LOWER(TRIM(u.rol)) = 'alumno'
+
+      GROUP BY
+        c.id,
+        c.titulo,
+        c.grado
+
+      ORDER BY
+        promedio DESC,
+        c.titulo ASC
+    `
+
+    conexion.query(
+      sql,
+      (err, rows) => {
+        if (err) {
+          console.log(
+            "Error dashboard rendimiento:",
+            err
+          )
+
+          return res.status(500).json({
+            status: "error",
+            mensaje:
+              "Error al obtener rendimiento por tema"
+          })
+        }
+
+        return res.json(
+          rows.map((row) => ({
+            contenido_id:
+              Number(row.contenido_id),
+
+            titulo:
+              row.titulo,
+
+            grado:
+              row.grado,
+
+            completadas:
+              Number(row.completadas) || 0,
+
+            promedio:
+              row.promedio === null
+                ? null
+                : Number(row.promedio)
+          }))
+        )
+      }
+    )
+  }
+)
+
+
+// ========================================
+// ALUMNOS QUE NECESITAN REFUERZO
+// ========================================
+
+app.get(
+  "/dashboard/alumnos-refuerzo",
+  autorizarRoles("maestro"),
+  (req, res) => {
+    const sql = `
+      SELECT
+        u.id AS usuario_id,
+        u.nombre,
+        u.usuario,
+
+        COUNT(
+          CASE
+            WHEN ultimo.estado = 'completado'
+            THEN 1
+          END
+        ) AS actividades_completadas,
+
+        ROUND(
+          AVG(
+            CASE
+              WHEN ultimo.estado = 'completado'
+              THEN
+                LEAST(
+                  100,
+                  GREATEST(
+                    0,
+                    ultimo.porcentaje
+                  )
+                )
+              ELSE NULL
+            END
+          ),
+          2
+        ) AS promedio
+
+      FROM usuarios u
+
+      CROSS JOIN contenidos c
+
+      LEFT JOIN intentos_evaluacion ultimo
+        ON ultimo.id = (
+          SELECT i2.id
+          FROM intentos_evaluacion i2
+
+          WHERE
+            i2.usuario_id = u.id
+            AND
+            i2.contenido_id = c.id
+
+          ORDER BY
+            i2.numero_intento DESC,
+            i2.id DESC
+
+          LIMIT 1
+        )
+
+      WHERE
+        LOWER(TRIM(u.rol)) = 'alumno'
+        AND c.activo = 1
+
+      GROUP BY
+        u.id,
+        u.nombre,
+        u.usuario
+
+      HAVING
+        actividades_completadas > 0
+        AND promedio < 60
+
+      ORDER BY
+        promedio ASC,
+        u.nombre ASC
+
+      LIMIT 10
+    `
+
+    conexion.query(
+      sql,
+      (err, rows) => {
+        if (err) {
+          console.log(
+            "Error dashboard alumnos refuerzo:",
+            err
+          )
+
+          return res.status(500).json({
+            status: "error",
+            mensaje:
+              "Error al obtener alumnos que necesitan refuerzo"
+          })
+        }
+
+        return res.json(
+          rows.map((row) => ({
+            usuario_id:
+              Number(row.usuario_id),
+
+            nombre:
+              row.nombre,
+
+            usuario:
+              row.usuario,
+
+            actividades_completadas:
+              Number(
+                row.actividades_completadas
+              ) || 0,
+
+            promedio:
+              Number(row.promedio) || 0
+          }))
+        )
+      }
+    )
+  }
+)
 
 // ========================================
 // SERVIDOR
