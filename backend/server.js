@@ -3,10 +3,41 @@ const mysql = require("mysql2")
 const cors = require("cors")
 require("dotenv").config()
 
+const { crearToken, autenticarToken, autorizarRoles } = require("./security/auth")
+const { hashPassword, verificarPassword, esHashSeguro } = require("./security/passwords")
+
 const app = express()
 
-app.use(cors())
-app.use(express.json())
+app.set("trust proxy", 1)
+app.disable("x-powered-by")
+
+const origenesPermitidos = [
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",
+  "http://localhost:4173"
+].filter(Boolean)
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Si FRONTEND_URL aun no esta configurado, mantenemos compatibilidad.
+      if (!origin || !process.env.FRONTEND_URL || origenesPermitidos.includes(origin)) {
+        return callback(null, true)
+      }
+
+      return callback(new Error("Origen no permitido por CORS"))
+    }
+  })
+)
+
+app.use(express.json({ limit: "1mb" }))
+
+app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff")
+  res.setHeader("X-Frame-Options", "DENY")
+  res.setHeader("Referrer-Policy", "no-referrer")
+  next()
+})
 
 // ========================================
 // CONEXIÓN A MYSQL
@@ -40,25 +71,56 @@ app.get("/", (req, res) => {
 // LOGIN
 // ========================================
 
-app.post("/login", (req, res) => {
+// Limite basico contra intentos repetidos de inicio de sesion.
+const intentosLogin = new Map()
+const VENTANA_LOGIN_MS = 15 * 60 * 1000
+const MAX_INTENTOS_LOGIN = 10
+
+function limitarLogin(req, res, next) {
+  const clave = req.ip || "desconocido"
+  const ahora = Date.now()
+  const registro = intentosLogin.get(clave)
+
+  if (!registro || ahora > registro.reiniciaEn) {
+    intentosLogin.set(clave, {
+      cantidad: 1,
+      reiniciaEn: ahora + VENTANA_LOGIN_MS
+    })
+    return next()
+  }
+
+  if (registro.cantidad >= MAX_INTENTOS_LOGIN) {
+    const segundos = Math.ceil((registro.reiniciaEn - ahora) / 1000)
+
+    return res.status(429).json({
+      status: "error",
+      mensaje: `Demasiados intentos. Intenta de nuevo en ${segundos} segundos.`
+    })
+  }
+
+  registro.cantidad += 1
+  intentosLogin.set(clave, registro)
+  return next()
+}
+
+app.post("/login", limitarLogin, (req, res) => {
   const { usuario, password } = req.body
 
   if (!usuario || !password) {
-    return res.json({
+    return res.status(400).json({
       status: "error",
-      mensaje: "Usuario y contraseña son obligatorios"
+      mensaje: "Usuario y contrasena son obligatorios"
     })
   }
 
   const sql = `
-    SELECT id, nombre, usuario, rol
+    SELECT id, nombre, usuario, rol, password
     FROM usuarios
     WHERE usuario = ?
-      AND password = ?
     LIMIT 1
   `
 
-  conexion.query(sql, [usuario, password], (err, result) => {
+  conexion.query(sql, [usuario], (err, result) => {
     if (err) {
       console.log("Error en login:", err)
 
@@ -68,20 +130,78 @@ app.post("/login", (req, res) => {
       })
     }
 
-    if (result.length > 0) {
-      return res.json({
-        status: "ok",
-        id: result[0].id,
-        nombre: result[0].nombre,
-        usuario: result[0].usuario,
-        rol: result[0].rol
+    if (result.length === 0) {
+      return res.status(401).json({
+        status: "error",
+        mensaje: "Usuario o contrasena incorrectos"
       })
     }
 
-    return res.json({
-      status: "error",
-      mensaje: "Usuario o contraseña incorrectos"
-    })
+    const usuarioEncontrado = result[0]
+    const passwordValido = verificarPassword(password, usuarioEncontrado.password)
+
+    if (!passwordValido) {
+      return res.status(401).json({
+        status: "error",
+        mensaje: "Usuario o contrasena incorrectos"
+      })
+    }
+
+    const responderLogin = () => {
+      try {
+        intentosLogin.delete(req.ip || "desconocido")
+        const token = crearToken(usuarioEncontrado)
+
+        return res.json({
+          status: "ok",
+          token,
+          id: usuarioEncontrado.id,
+          nombre: usuarioEncontrado.nombre,
+          usuario: usuarioEncontrado.usuario,
+          rol: usuarioEncontrado.rol
+        })
+      } catch (error) {
+        console.log("Error al generar token:", error.message)
+
+        return res.status(500).json({
+          status: "error",
+          mensaje: "La seguridad del servidor no esta configurada correctamente"
+        })
+      }
+    }
+
+    // Migra automaticamente contrasenas antiguas en texto plano.
+    if (!esHashSeguro(usuarioEncontrado.password)) {
+      const passwordSeguro = hashPassword(password)
+
+      return conexion.query(
+        "UPDATE usuarios SET password = ? WHERE id = ?",
+        [passwordSeguro, usuarioEncontrado.id],
+        (updateError) => {
+          if (updateError) {
+            console.log("Error al proteger la contrasena:", updateError)
+            return res.status(500).json({
+              status: "error",
+              mensaje: "No se pudo actualizar la seguridad de la cuenta"
+            })
+          }
+
+          return responderLogin()
+        }
+      )
+    }
+
+    return responderLogin()
+  })
+})
+
+// Desde este punto todas las rutas requieren un JWT valido.
+app.use(autenticarToken)
+
+app.get("/auth/me", (req, res) => {
+  return res.json({
+    status: "ok",
+    usuario: req.usuario
   })
 })
 
@@ -89,7 +209,7 @@ app.post("/login", (req, res) => {
 // USUARIOS
 // ========================================
 
-app.post("/usuarios", (req, res) => {
+app.post("/usuarios", autorizarRoles("maestro"), (req, res) => {
   const { nombre, usuario, password, rol } = req.body
 
   if (!nombre || !usuario || !password || !rol) {
@@ -129,7 +249,9 @@ app.post("/usuarios", (req, res) => {
       VALUES (?, ?, ?, ?)
     `
 
-    conexion.query(sql, [nombre, usuario, password, rol], (err) => {
+    const passwordSeguro = hashPassword(password)
+
+    conexion.query(sql, [nombre, usuario, passwordSeguro, rol], (err) => {
       if (err) {
         console.log("Error al crear usuario:", err)
         return res.status(500).json({
@@ -146,7 +268,7 @@ app.post("/usuarios", (req, res) => {
   })
 })
 
-app.get("/usuarios", (req, res) => {
+app.get("/usuarios", autorizarRoles("maestro"), (req, res) => {
   const sql = `
     SELECT id, nombre, usuario, rol
     FROM usuarios
@@ -170,7 +292,7 @@ app.get("/usuarios", (req, res) => {
 // ALUMNOS
 // ========================================
 
-app.post("/alumnos", (req, res) => {
+app.post("/alumnos", autorizarRoles("maestro"), (req, res) => {
   const { nombre, grado, seccion } = req.body
 
   if (!nombre || !grado || !seccion) {
@@ -201,7 +323,7 @@ app.post("/alumnos", (req, res) => {
   })
 })
 
-app.get("/alumnos", (req, res) => {
+app.get("/alumnos", autorizarRoles("maestro"), (req, res) => {
   const sql = `
     SELECT id, nombre, usuario, rol
     FROM usuarios
@@ -226,7 +348,7 @@ app.get("/alumnos", (req, res) => {
 // MAESTROS
 // ========================================
 
-app.get("/maestros", (req, res) => {
+app.get("/maestros", autorizarRoles("maestro"), (req, res) => {
   const sql = `
     SELECT id, nombre, usuario, rol
     FROM usuarios
@@ -251,7 +373,7 @@ app.get("/maestros", (req, res) => {
 // REGISTRO
 // ========================================
 
-app.post("/registro", (req, res) => {
+app.post("/registro", autorizarRoles("maestro"), (req, res) => {
   const { nombre, usuario, password } = req.body
 
   if (!nombre || !usuario || !password) {
@@ -266,7 +388,9 @@ app.post("/registro", (req, res) => {
     VALUES (?, ?, ?)
   `
 
-  conexion.query(sql, [nombre, usuario, password], (err) => {
+  const passwordSeguro = hashPassword(password)
+
+  conexion.query(sql, [nombre, usuario, passwordSeguro], (err) => {
     if (err) {
       console.log("Error al registrar usuario:", err)
       return res.status(500).json({
@@ -286,7 +410,7 @@ app.post("/registro", (req, res) => {
 // CONTENIDOS
 // ========================================
 
-app.post("/contenidos", (req, res) => {
+app.post("/contenidos", autorizarRoles("maestro"), (req, res) => {
   const { titulo, descripcion, grado } = req.body
 
   if (!titulo || !descripcion || !grado) {
@@ -339,7 +463,7 @@ app.get("/contenidos", (req, res) => {
   })
 })
 
-app.get("/contenidos/archivados", (req, res) => {
+app.get("/contenidos/archivados", autorizarRoles("maestro"), (req, res) => {
   const sql = `
     SELECT *
     FROM contenidos
@@ -390,7 +514,7 @@ app.get("/contenidos/:id", (req, res) => {
 })
 
 // "Eliminar" conserva el historial: se archiva el contenido.
-app.delete("/contenidos/:id", (req, res) => {
+app.delete("/contenidos/:id", autorizarRoles("maestro"), (req, res) => {
   const { id } = req.params
 
   const sql = `
@@ -422,7 +546,7 @@ app.delete("/contenidos/:id", (req, res) => {
   })
 })
 
-app.put("/contenidos/:id/restaurar", (req, res) => {
+app.put("/contenidos/:id/restaurar", autorizarRoles("maestro"), (req, res) => {
   const { id } = req.params
 
   const sql = `
@@ -458,7 +582,7 @@ app.put("/contenidos/:id/restaurar", (req, res) => {
 // PREGUNTAS
 // ========================================
 
-app.post("/preguntas", (req, res) => {
+app.post("/preguntas", autorizarRoles("maestro"), (req, res) => {
   const {
     contenido_id,
     pregunta,
@@ -542,18 +666,14 @@ app.post("/preguntas", (req, res) => {
 
 app.get("/contenidos/:id/preguntas", (req, res) => {
   const { id } = req.params
+  const esMaestro = req.usuario?.rol === "maestro"
+
+  const campos = esMaestro
+    ? `id, contenido_id, pregunta, opcion_a, opcion_b, opcion_c, opcion_d, respuesta_correcta, puntaje`
+    : `id, contenido_id, pregunta, opcion_a, opcion_b, opcion_c, opcion_d, puntaje`
 
   const sql = `
-    SELECT
-      id,
-      contenido_id,
-      pregunta,
-      opcion_a,
-      opcion_b,
-      opcion_c,
-      opcion_d,
-      respuesta_correcta,
-      puntaje
+    SELECT ${campos}
     FROM preguntas
     WHERE contenido_id = ?
     ORDER BY id ASC
@@ -572,7 +692,7 @@ app.get("/contenidos/:id/preguntas", (req, res) => {
   })
 })
 
-app.put("/preguntas/:id", (req, res) => {
+app.put("/preguntas/:id", autorizarRoles("maestro"), (req, res) => {
   const { id } = req.params
   const {
     pregunta,
@@ -673,6 +793,23 @@ function obtenerRespuestasIntento(intentoId, callback) {
   conexion.query(sql, [intentoId], callback)
 }
 
+function obtenerDetalleRespuestasIntento(intentoId, callback) {
+  const sql = `
+    SELECT
+      r.pregunta_id,
+      r.respuesta_seleccionada,
+      r.es_correcta,
+      r.puntaje_obtenido,
+      p.respuesta_correcta
+    FROM respuestas_estudiante r
+    INNER JOIN preguntas p ON p.id = r.pregunta_id
+    WHERE r.intento_id = ?
+    ORDER BY r.pregunta_id
+  `
+
+  conexion.query(sql, [intentoId], callback)
+}
+
 function crearIntento(usuarioId, contenidoId, numeroIntento, stats, callback) {
   const sql = `
     INSERT INTO intentos_evaluacion
@@ -715,13 +852,14 @@ function crearIntento(usuarioId, contenidoId, numeroIntento, stats, callback) {
 }
 
 // Inicia, reanuda o bloquea un intento.
-app.post("/intentos/iniciar", (req, res) => {
-  const { usuario_id, contenido_id } = req.body
+app.post("/intentos/iniciar", autorizarRoles("alumno"), (req, res) => {
+  const { contenido_id } = req.body
+  const usuario_id = req.usuario.id
 
-  if (!usuario_id || !contenido_id) {
+  if (!contenido_id) {
     return res.status(400).json({
       status: "error",
-      mensaje: "usuario_id y contenido_id son obligatorios"
+      mensaje: "contenido_id es obligatorio"
     })
   }
 
@@ -801,10 +939,21 @@ app.post("/intentos/iniciar", (req, res) => {
       }
 
       if (!Number(ultimo.reintento_habilitado)) {
-        return res.status(403).json({
-          status: "bloqueado",
-          mensaje: "Ya completaste esta actividad. Tu maestro debe habilitar un nuevo intento.",
-          intento: ultimo
+        return obtenerDetalleRespuestasIntento(ultimo.id, (detalleError, detalleRespuestas) => {
+          if (detalleError) {
+            console.log("Error al obtener detalle del intento completado:", detalleError)
+            return res.status(500).json({
+              status: "error",
+              mensaje: "No se pudo recuperar el resultado anterior"
+            })
+          }
+
+          return res.status(403).json({
+            status: "bloqueado",
+            mensaje: "Ya completaste esta actividad. Tu maestro debe habilitar un nuevo intento.",
+            intento: ultimo,
+            detalle_respuestas: detalleRespuestas
+          })
         })
       }
 
@@ -854,7 +1003,7 @@ app.post("/intentos/iniciar", (req, res) => {
 })
 
 // Guarda/actualiza una respuesta mientras el intento está en progreso.
-app.put("/intentos/:id/respuesta", (req, res) => {
+app.put("/intentos/:id/respuesta", autorizarRoles("alumno"), (req, res) => {
   const { id } = req.params
   const { pregunta_id, respuesta_seleccionada } = req.body
 
@@ -870,11 +1019,11 @@ app.put("/intentos/:id/respuesta", (req, res) => {
   const sqlIntento = `
     SELECT *
     FROM intentos_evaluacion
-    WHERE id = ? AND estado = 'en_progreso'
+    WHERE id = ? AND usuario_id = ? AND estado = 'en_progreso'
     LIMIT 1
   `
 
-  conexion.query(sqlIntento, [id], (err, intentos) => {
+  conexion.query(sqlIntento, [id, req.usuario.id], (err, intentos) => {
     if (err) {
       return res.status(500).json({ status: "error", mensaje: "Error al consultar el intento" })
     }
@@ -973,7 +1122,7 @@ app.put("/intentos/:id/respuesta", (req, res) => {
 })
 
 // Finaliza definitivamente el intento actual.
-app.post("/intentos/:id/finalizar", (req, res) => {
+app.post("/intentos/:id/finalizar", autorizarRoles("alumno"), (req, res) => {
   const { id } = req.params
 
   const sql = `
@@ -983,11 +1132,11 @@ app.post("/intentos/:id/finalizar", (req, res) => {
       COALESCE(SUM(r.puntaje_obtenido), 0) AS puntos_calculados
     FROM intentos_evaluacion i
     LEFT JOIN respuestas_estudiante r ON r.intento_id = i.id
-    WHERE i.id = ? AND i.estado = 'en_progreso'
+    WHERE i.id = ? AND i.usuario_id = ? AND i.estado = 'en_progreso'
     GROUP BY i.id
   `
 
-  conexion.query(sql, [id], (err, rows) => {
+  conexion.query(sql, [id, req.usuario.id], (err, rows) => {
     if (err) {
       console.log("Error al finalizar intento:", err)
       return res.status(500).json({ status: "error", mensaje: "Error al finalizar la actividad" })
@@ -1029,25 +1178,43 @@ app.post("/intentos/:id/finalizar", (req, res) => {
         return res.status(500).json({ status: "error", mensaje: "Error al guardar el resultado final" })
       }
 
-      return res.json({
-        status: "ok",
-        resultado: {
-          intento_id: Number(id),
-          numero_intento: Number(intento.numero_intento),
-          preguntas_totales: totalPreguntas,
-          preguntas_respondidas: respondidas,
-          puntaje_obtenido: puntos,
-          puntaje_total: totalPuntos,
-          porcentaje
+      obtenerDetalleRespuestasIntento(id, (detalleError, detalleRespuestas) => {
+        if (detalleError) {
+          console.log("Error al recuperar correcciones:", detalleError)
+          return res.status(500).json({
+            status: "error",
+            mensaje: "Resultado guardado, pero no se pudo recuperar el detalle"
+          })
         }
+
+        return res.json({
+          status: "ok",
+          resultado: {
+            intento_id: Number(id),
+            numero_intento: Number(intento.numero_intento),
+            preguntas_totales: totalPreguntas,
+            preguntas_respondidas: respondidas,
+            puntaje_obtenido: puntos,
+            puntaje_total: totalPuntos,
+            porcentaje
+          },
+          detalle_respuestas: detalleRespuestas
+        })
       })
     })
   })
 })
 
 // Progreso que verá el estudiante en su panel.
-app.get("/alumnos/:usuarioId/progreso", (req, res) => {
+app.get("/alumnos/:usuarioId/progreso", autorizarRoles("alumno"), (req, res) => {
   const { usuarioId } = req.params
+
+  if (Number(usuarioId) !== Number(req.usuario.id)) {
+    return res.status(403).json({
+      status: "error",
+      mensaje: "No puedes consultar el progreso de otro alumno"
+    })
+  }
 
   const sql = `
     SELECT
@@ -1103,7 +1270,7 @@ app.get("/alumnos/:usuarioId/progreso", (req, res) => {
 // SEGUIMIENTO DEL MAESTRO
 // ========================================
 
-app.get("/seguimiento", (req, res) => {
+app.get("/seguimiento", autorizarRoles("maestro"), (req, res) => {
   const sql = `
     SELECT
       u.id AS usuario_id,
@@ -1162,7 +1329,7 @@ app.get("/seguimiento", (req, res) => {
   })
 })
 
-app.put("/seguimiento/:intentoId/habilitar-reintento", (req, res) => {
+app.put("/seguimiento/:intentoId/habilitar-reintento", autorizarRoles("maestro"), (req, res) => {
   const { intentoId } = req.params
 
   const sql = `

@@ -20,6 +20,23 @@ function ContenidoAlumno() {
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState("")
 
+  const aplicarCorrecciones = (lista, detalle = []) => {
+    const mapa = new Map(
+      detalle.map((item) => [Number(item.pregunta_id), item])
+    )
+
+    return lista.map((pregunta) => {
+      const correccion = mapa.get(Number(pregunta.id))
+
+      if (!correccion) return pregunta
+
+      return {
+        ...pregunta,
+        respuesta_correcta: correccion.respuesta_correcta
+      }
+    })
+  }
+
   useEffect(() => {
     if (!usuarioId) {
       navigate("/")
@@ -54,7 +71,6 @@ function ContenidoAlumno() {
 
       try {
         const intentoResponse = await axios.post(`${API_URL}/intentos/iniciar`, {
-          usuario_id: Number(usuarioId),
           contenido_id: Number(id)
         })
 
@@ -68,6 +84,15 @@ function ContenidoAlumno() {
       } catch (errorIntento) {
         if (errorIntento.response?.status === 403 && errorIntento.response?.data?.status === "bloqueado") {
           const intentoCompletado = errorIntento.response.data.intento
+          const detalleRespuestas = errorIntento.response.data.detalle_respuestas || []
+          const respuestasGuardadas = {}
+
+          detalleRespuestas.forEach((item) => {
+            respuestasGuardadas[item.pregunta_id] = item.respuesta_seleccionada
+          })
+
+          setRespuestas(respuestasGuardadas)
+          setPreguntas(aplicarCorrecciones(listaPreguntas, detalleRespuestas))
           setIntento(intentoCompletado)
           setBloqueado(true)
           setResultado({
@@ -139,6 +164,9 @@ function ContenidoAlumno() {
 
     try {
       const res = await axios.post(`${API_URL}/intentos/${intento.id}/finalizar`)
+      setPreguntas((actuales) =>
+        aplicarCorrecciones(actuales, res.data.detalle_respuestas || [])
+      )
       setResultado(res.data.resultado)
       setBloqueado(true)
 

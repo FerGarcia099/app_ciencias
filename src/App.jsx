@@ -31,6 +31,13 @@ function App() {
             rol: res.data.rol
           }
 
+          if (!res.data.token) {
+            setMensaje("El servidor no devolvio una sesion valida")
+            return
+          }
+
+          localStorage.clear()
+          localStorage.setItem("token", res.data.token)
           localStorage.setItem("usuario", JSON.stringify(usuarioSesion))
           localStorage.setItem("usuarioId", String(res.data.id))
           localStorage.setItem("nombre", res.data.nombre)
@@ -51,7 +58,10 @@ function App() {
       })
       .catch((error) => {
         console.error(error)
-        setMensaje("No se pudo conectar con el servidor")
+        setMensaje(
+          error.response?.data?.mensaje ||
+            "No se pudo conectar con el servidor"
+        )
       })
   }
 
