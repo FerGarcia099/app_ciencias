@@ -15,6 +15,19 @@ function Panel() {
     "Administrador"
 
   const [contenidos, setContenidos] = useState([])
+  const [resumenDashboard, setResumenDashboard] = useState({
+  total_alumnos: 0,
+  total_contenidos: 0,
+  completadas: 0,
+  en_progreso: 0,
+  sin_iniciar: 0,
+  promedio_general: 0
+})
+
+  const [rendimientoTemas, setRendimientoTemas] = useState([])
+  const [alumnosRefuerzo, setAlumnosRefuerzo] = useState([])
+  const [cargandoDashboard, setCargandoDashboard] = useState(true)
+
   const [contenidoSeleccionado, setContenidoSeleccionado] =
     useState(null)
 
@@ -40,6 +53,7 @@ function Panel() {
 
   useEffect(() => {
     obtenerContenidos()
+    obtenerDashboard()
   }, [])
 
   const obtenerContenidos = () => {
@@ -61,6 +75,63 @@ function Panel() {
         alert("Error al obtener contenidos")
       })
   }
+
+  const obtenerDashboard = async () => {
+  try {
+    setCargandoDashboard(true)
+
+    const [
+      resumenRes,
+      rendimientoRes,
+      refuerzoRes
+    ] = await Promise.all([
+      axios.get(
+        `${API_URL}/dashboard/resumen`
+      ),
+
+      axios.get(
+        `${API_URL}/dashboard/rendimiento`
+      ),
+
+      axios.get(
+        `${API_URL}/dashboard/alumnos-refuerzo`
+      )
+    ])
+
+    setResumenDashboard(
+      resumenRes.data || {
+        total_alumnos: 0,
+        total_contenidos: 0,
+        completadas: 0,
+        en_progreso: 0,
+        sin_iniciar: 0,
+        promedio_general: 0
+      }
+    )
+
+    setRendimientoTemas(
+      Array.isArray(rendimientoRes.data)
+        ? rendimientoRes.data
+        : []
+    )
+
+    setAlumnosRefuerzo(
+      Array.isArray(refuerzoRes.data)
+        ? refuerzoRes.data
+        : []
+    )
+  } catch (error) {
+    console.error(
+      "Error al cargar dashboard:",
+      error
+    )
+
+    setRendimientoTemas([])
+    setAlumnosRefuerzo([])
+  } finally {
+    setCargandoDashboard(false)
+  }
+}
 
   // =========================================
   // VER CONTENIDO
@@ -286,106 +357,426 @@ function Panel() {
 
           <section className="admin-hero">
 
-            <div className="admin-hero-personaje">
-              👨‍🏫
-            </div>
+  <div className="admin-hero-personaje">
+    👨‍🏫
+  </div>
 
-            <div className="admin-hero-texto">
+  <div className="admin-hero-texto">
 
-              <span className="admin-hero-etiqueta">
-                ✨ PANEL EDUCATIVO
-              </span>
+    <span className="admin-hero-etiqueta">
+      ✨ PANEL EDUCATIVO
+    </span>
 
-              <h1>
-                ¡Bienvenido, {nombre}!
-              </h1>
+    <h1>
+      ¡Bienvenido, {nombre}!
+    </h1>
 
-              <p>
-                Gestiona los contenidos de
-                Ciencias Naturales, crea
-                actividades y revisa el
-                aprendizaje de tus estudiantes
-                desde un solo lugar.
-              </p>
+    <p>
+      Gestiona los contenidos de
+      Ciencias Naturales, crea
+      actividades y revisa el
+      aprendizaje de tus estudiantes
+      desde un solo lugar.
+    </p>
 
-            </div>
+  </div>
 
-            <div className="admin-hero-ilustracion">
+  <div className="admin-hero-ilustracion">
 
-              <span>📖</span>
-              <span>🌿</span>
-              <span>🧪</span>
+    <span>📖</span>
+    <span>🌿</span>
+    <span>🧪</span>
 
-            </div>
+  </div>
 
-          </section>
+</section>
 
-          {/* =================================
-              RESUMEN
-          ================================= */}
 
-          <section className="admin-resumen-grid">
+{/* =================================
+    NUEVO DASHBOARD
+================================= */}
 
-            <div className="admin-resumen-card resumen-morado">
 
-              <div className="resumen-icono">
-                📚
-              </div>
+{/* 1. RESUMEN GENERAL */}
 
-              <div>
-                <strong>
-                  {contenidos.length}
-                </strong>
+<section className="dashboard-resumen">
 
-                <span>
-                  Contenidos creados
-                </span>
-              </div>
+  <div className="dashboard-stat stat-alumnos">
 
-            </div>
+    <div className="dashboard-stat-icono">
+      👦
+    </div>
 
-            <div className="admin-resumen-card resumen-verde">
+    <div>
+      <strong>
+        {resumenDashboard.total_alumnos}
+      </strong>
 
-              <div className="resumen-icono">
-                🌱
-              </div>
+      <span>
+        Alumnos
+      </span>
+    </div>
 
-              <div>
-                <strong>
-                  Ciencias
-                </strong>
+  </div>
 
-                <span>
-                  Naturales
-                </span>
-              </div>
 
-            </div>
+  <div className="dashboard-stat stat-contenidos">
+
+    <div className="dashboard-stat-icono">
+      📚
+    </div>
+
+    <div>
+      <strong>
+        {resumenDashboard.total_contenidos}
+      </strong>
+
+      <span>
+        Contenidos
+      </span>
+    </div>
+
+  </div>
+
+
+  <div className="dashboard-stat stat-promedio">
+
+    <div className="dashboard-stat-icono">
+      ⭐
+    </div>
+
+    <div>
+      <strong>
+        {Number(
+          resumenDashboard.promedio_general
+        ).toFixed(1)}%
+      </strong>
+
+      <span>
+        Promedio general
+      </span>
+    </div>
+
+  </div>
+
+
+  <div className="dashboard-stat stat-refuerzo">
+
+    <div className="dashboard-stat-icono">
+      ⚠️
+    </div>
+
+    <div>
+      <strong>
+        {alumnosRefuerzo.length}
+      </strong>
+
+      <span>
+        Necesitan apoyo
+      </span>
+    </div>
+
+  </div>
+
+</section>
+
+
+{/* 2. ESTADO DE ACTIVIDADES */}
+
+<section className="dashboard-estados">
+
+  <div className="dashboard-seccion-titulo">
+
+    <div>
+
+      <span>
+        📊 ACTIVIDADES
+      </span>
+
+      <h2>
+        Estado del aprendizaje
+      </h2>
+
+      <p>
+        Situación actual de las actividades
+        asignadas a tus estudiantes.
+      </p>
+
+    </div>
+
+    <button
+      onClick={() =>
+        navigate("/seguimiento")
+      }
+      className="dashboard-btn-link"
+    >
+      Ver seguimiento →
+    </button>
+
+  </div>
+
+
+  <div className="dashboard-estados-grid">
+
+    <div className="estado-card estado-completadas">
+
+      <div className="estado-card-icono">
+        ✅
+      </div>
+
+      <div>
+        <strong>
+          {resumenDashboard.completadas}
+        </strong>
+
+        <span>
+          Completadas
+        </span>
+      </div>
+
+    </div>
+
+
+    <div className="estado-card estado-progreso">
+
+      <div className="estado-card-icono">
+        🟡
+      </div>
+
+      <div>
+        <strong>
+          {resumenDashboard.en_progreso}
+        </strong>
+
+        <span>
+          En progreso
+        </span>
+      </div>
+
+    </div>
+
+
+    <div className="estado-card estado-sin-iniciar">
+
+      <div className="estado-card-icono">
+        ⚪
+      </div>
+
+      <div>
+        <strong>
+          {resumenDashboard.sin_iniciar}
+        </strong>
+
+        <span>
+          Sin iniciar
+        </span>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+{/* 3. RENDIMIENTO Y REFUERZO */}
+
+<section className="dashboard-dos-columnas">
+
+
+  {/* RENDIMIENTO POR TEMA */}
+
+  <div className="dashboard-card">
+
+    <div className="dashboard-card-header">
+
+      <div>
+
+        <span>
+          📈 RENDIMIENTO
+        </span>
+
+        <h2>
+          Rendimiento por tema
+        </h2>
+
+      </div>
+
+    </div>
+
+
+    {cargandoDashboard ? (
+
+      <div className="dashboard-cargando">
+        📚 Cargando estadísticas...
+      </div>
+
+    ) : rendimientoTemas.length === 0 ? (
+
+      <div className="dashboard-vacio">
+        No hay resultados todavía.
+      </div>
+
+    ) : (
+
+      <div className="dashboard-rendimiento-lista">
+
+        {rendimientoTemas.map((tema) => {
+
+          const promedio =
+            tema.promedio === null
+              ? 0
+              : Number(tema.promedio)
+
+          return (
 
             <div
-              className="admin-resumen-card resumen-azul resumen-click"
-              onClick={() =>
-                navigate("/seguimiento")
-              }
+              className="rendimiento-item"
+              key={tema.contenido_id}
             >
 
-              <div className="resumen-icono">
-                📊
+              <div className="rendimiento-superior">
+
+                <div>
+
+                  <strong>
+                    {tema.titulo}
+                  </strong>
+
+                  <small>
+                    {tema.grado}
+                    {" • "}
+                    {tema.completadas}
+                    {" "}
+                    completadas
+                  </small>
+
+                </div>
+
+                <b>
+                  {promedio.toFixed(0)}%
+                </b>
+
               </div>
 
-              <div>
-                <strong>
-                  Seguimiento
-                </strong>
 
-                <span>
-                  Ver progreso →
-                </span>
+              <div className="rendimiento-barra">
+
+                <div
+                  className="rendimiento-relleno"
+                  style={{
+                    width: `${Math.min(
+                      100,
+                      promedio
+                    )}%`
+                  }}
+                />
+
               </div>
 
             </div>
 
-          </section>
+          )
+        })}
+
+      </div>
+
+    )}
+
+  </div>
+
+
+  {/* ALUMNOS QUE NECESITAN APOYO */}
+
+  <div className="dashboard-card">
+
+    <div className="dashboard-card-header">
+
+      <div>
+
+        <span>
+          🎯 ATENCIÓN
+        </span>
+
+        <h2>
+          Alumnos que necesitan apoyo
+        </h2>
+
+      </div>
+
+    </div>
+
+
+    {cargandoDashboard ? (
+
+      <div className="dashboard-cargando">
+        Analizando resultados...
+      </div>
+
+    ) : alumnosRefuerzo.length === 0 ? (
+
+      <div className="dashboard-todo-bien">
+
+        <div>
+          🎉
+        </div>
+
+        <h3>
+          ¡Excelente trabajo!
+        </h3>
+
+        <p>
+          Actualmente ningún alumno con
+          actividades completadas tiene un
+          promedio inferior al 60%.
+        </p>
+
+      </div>
+
+    ) : (
+
+      <div className="refuerzo-lista">
+
+        {alumnosRefuerzo.map((alumno) => (
+
+          <div
+            className="refuerzo-item"
+            key={alumno.usuario_id}
+          >
+
+            <div className="refuerzo-avatar">
+              👦
+            </div>
+
+            <div className="refuerzo-info">
+
+              <strong>
+                {alumno.nombre}
+              </strong>
+
+              <span>
+                @{alumno.usuario}
+              </span>
+
+            </div>
+
+            <div className="refuerzo-promedio">
+              {Number(
+                alumno.promedio
+              ).toFixed(0)}%
+            </div>
+
+          </div>
+
+        ))}
+
+      </div>
+
+    )}
+
+  </div>
+
+</section>
 
           {/* =================================
               CONTENIDOS

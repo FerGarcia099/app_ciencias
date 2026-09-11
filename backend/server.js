@@ -5,6 +5,7 @@ require("dotenv").config()
 
 const { crearToken, autenticarToken, autorizarRoles } = require("./security/auth")
 const { hashPassword, verificarPassword, esHashSeguro } = require("./security/passwords")
+const crearRutasAcademicas = require("./routes/academico")
 
 const app = express()
 
@@ -197,6 +198,9 @@ app.post("/login", limitarLogin, (req, res) => {
 
 // Desde este punto todas las rutas requieren un JWT valido.
 app.use(autenticarToken)
+
+// Modulo academico: 5 parametrizaciones, matriculas y asignaciones docentes.
+app.use("/academico", crearRutasAcademicas({ conexion, autorizarRoles }))
 
 app.get("/auth/me", (req, res) => {
   return res.json({

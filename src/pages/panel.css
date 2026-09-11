@@ -714,3 +714,652 @@
   box-sizing: border-box;
   width: 250px;
 }
+
+/* ==================================================
+   TARJETAS DE RESUMEN
+================================================== */
+
+.dashboard-resumen {
+  position: relative;
+  z-index: 1;
+
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 18px;
+
+  margin-bottom: 26px;
+}
+
+.dashboard-stat {
+  min-height: 110px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+
+  padding: 20px;
+
+  background: #ffffff;
+
+  border: 1px solid rgba(126, 87, 194, 0.08);
+  border-radius: 22px;
+
+  box-shadow:
+    0 12px 30px
+    rgba(84, 72, 140, 0.09);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.dashboard-stat:hover {
+  transform: translateY(-4px);
+
+  box-shadow:
+    0 16px 35px
+    rgba(84, 72, 140, 0.14);
+}
+
+.dashboard-stat-icono {
+  width: 60px;
+  height: 60px;
+
+  min-width: 60px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 18px;
+
+  font-size: 1.8rem;
+}
+
+.stat-alumnos .dashboard-stat-icono {
+  background:
+    linear-gradient(
+      135deg,
+      #efe7ff,
+      #ded1ff
+    );
+}
+
+.stat-contenidos .dashboard-stat-icono {
+  background:
+    linear-gradient(
+      135deg,
+      #e2f5ff,
+      #c8eaff
+    );
+}
+
+.stat-promedio .dashboard-stat-icono {
+  background:
+    linear-gradient(
+      135deg,
+      #fff3c9,
+      #ffe08a
+    );
+}
+
+.stat-refuerzo .dashboard-stat-icono {
+  background:
+    linear-gradient(
+      135deg,
+      #ffe7eb,
+      #ffcdd5
+    );
+}
+
+.dashboard-stat strong {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #2f2349;
+
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.dashboard-stat span {
+  color: #777188;
+
+  font-size: 0.9rem;
+}
+
+
+/* ==================================================
+   ESTADO DEL APRENDIZAJE
+================================================== */
+
+.dashboard-estados {
+  position: relative;
+  z-index: 1;
+
+  margin-bottom: 26px;
+
+  padding: 26px;
+
+  background: rgba(255, 255, 255, 0.97);
+
+  border: 1px solid rgba(126, 87, 194, 0.08);
+
+  border-radius: 28px;
+
+  box-shadow:
+    0 14px 35px
+    rgba(84, 72, 140, 0.09);
+}
+
+.dashboard-seccion-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 22px;
+}
+
+.dashboard-seccion-titulo span {
+  color: #8e66ff;
+
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.dashboard-seccion-titulo h2 {
+  margin: 7px 0 6px;
+
+  color: #2f2349;
+
+  font-size: 1.65rem;
+}
+
+.dashboard-seccion-titulo p {
+  margin: 0;
+
+  color: #777188;
+
+  font-size: 0.95rem;
+}
+
+.dashboard-btn-link {
+  border: none;
+
+  padding: 12px 18px;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #8f62ff,
+      #5341e5
+    );
+
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: bold;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 10px 22px
+    rgba(83, 65, 229, 0.18);
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.dashboard-btn-link:hover {
+  transform: translateY(-2px);
+
+  opacity: 0.95;
+}
+
+.dashboard-estados-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 17px;
+}
+
+.estado-card {
+  min-height: 95px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 15px;
+
+  padding: 18px;
+
+  border-radius: 20px;
+}
+
+.estado-card-icono {
+  width: 54px;
+  height: 54px;
+
+  min-width: 54px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(255, 255, 255, 0.75);
+
+  border-radius: 16px;
+
+  font-size: 1.55rem;
+}
+
+.estado-card strong {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #2f2349;
+
+  font-size: 1.55rem;
+}
+
+.estado-card span {
+  color: #716c7d;
+
+  font-size: 0.9rem;
+}
+
+.estado-completadas {
+  background:
+    linear-gradient(
+      135deg,
+      #eaf9ed,
+      #dff6e4
+    );
+}
+
+.estado-progreso {
+  background:
+    linear-gradient(
+      135deg,
+      #fff6d9,
+      #ffedb5
+    );
+}
+
+.estado-sin-iniciar {
+  background:
+    linear-gradient(
+      135deg,
+      #f1eff7,
+      #e9e5f2
+    );
+}
+
+
+/* ==================================================
+   RENDIMIENTO Y REFUERZO
+================================================== */
+
+.dashboard-dos-columnas {
+  position: relative;
+  z-index: 1;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1.35fr)
+    minmax(0, 0.85fr);
+
+  gap: 22px;
+
+  margin-bottom: 28px;
+}
+
+.dashboard-card {
+  min-width: 0;
+
+  padding: 26px;
+
+  background: #ffffff;
+
+  border:
+    1px solid
+    rgba(126, 87, 194, 0.08);
+
+  border-radius: 28px;
+
+  box-shadow:
+    0 14px 35px
+    rgba(84, 72, 140, 0.09);
+}
+
+.dashboard-card-header {
+  margin-bottom: 22px;
+}
+
+.dashboard-card-header span {
+  color: #8e66ff;
+
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.dashboard-card-header h2 {
+  margin: 7px 0 0;
+
+  color: #2f2349;
+
+  font-size: 1.55rem;
+}
+
+
+/* ==================================================
+   RENDIMIENTO POR TEMA
+================================================== */
+
+.dashboard-rendimiento-lista {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 20px;
+}
+
+.rendimiento-item {
+  width: 100%;
+}
+
+.rendimiento-superior {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: flex-start;
+
+  gap: 16px;
+
+  margin-bottom: 9px;
+}
+
+.rendimiento-superior > div {
+  min-width: 0;
+
+  flex: 1;
+}
+
+.rendimiento-superior strong {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #3c3153;
+
+  font-size: 0.95rem;
+
+  white-space: normal;
+}
+
+.rendimiento-superior small {
+  display: block;
+
+  color: #8a8496;
+
+  font-size: 0.78rem;
+}
+
+.rendimiento-superior b {
+  flex-shrink: 0;
+
+  color: #684ed4;
+
+  font-size: 1rem;
+}
+
+.rendimiento-barra {
+  width: 100%;
+  height: 11px;
+
+  overflow: hidden;
+
+  background: #ece9f5;
+
+  border-radius: 999px;
+}
+
+.rendimiento-relleno {
+  height: 100%;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #8f62ff,
+      #4da4ff
+    );
+
+  transition: width 0.4s ease;
+}
+
+
+/* ==================================================
+   ALUMNOS QUE NECESITAN APOYO
+================================================== */
+
+.dashboard-todo-bien {
+  padding: 30px 20px;
+
+  text-align: center;
+
+  border-radius: 22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #eefaf0,
+      #f7fff8
+    );
+
+  border:
+    1px solid
+    rgba(85, 183, 105, 0.12);
+}
+
+.dashboard-todo-bien > div {
+  margin-bottom: 8px;
+
+  font-size: 2.8rem;
+}
+
+.dashboard-todo-bien h3 {
+  margin: 0 0 8px;
+
+  color: #3e9652;
+
+  font-size: 1.25rem;
+}
+
+.dashboard-todo-bien p {
+  margin: 0;
+
+  color: #718078;
+
+  font-size: 0.9rem;
+
+  line-height: 1.6;
+}
+
+.refuerzo-lista {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.refuerzo-item {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 13px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fff6f7,
+      #fffafa
+    );
+
+  border:
+    1px solid
+    #ffe1e5;
+
+  border-radius: 17px;
+}
+
+.refuerzo-avatar {
+  width: 44px;
+  height: 44px;
+
+  min-width: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #ffe7eb;
+
+  border-radius: 14px;
+
+  font-size: 1.3rem;
+}
+
+.refuerzo-info {
+  min-width: 0;
+
+  flex: 1;
+}
+
+.refuerzo-info strong {
+  display: block;
+
+  overflow: hidden;
+
+  color: #3b324b;
+
+  font-size: 0.9rem;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+.refuerzo-info span {
+  color: #938b9a;
+
+  font-size: 0.75rem;
+}
+
+.refuerzo-promedio {
+  flex-shrink: 0;
+
+  padding: 7px 10px;
+
+  background: #ffe2e7;
+
+  color: #c34d61;
+
+  border-radius: 999px;
+
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+
+/* ==================================================
+   CARGANDO / VACÍO
+================================================== */
+
+.dashboard-cargando,
+.dashboard-vacio {
+  padding: 32px 18px;
+
+  text-align: center;
+
+  color: #7a7488;
+
+  background: #f9f8fd;
+
+  border-radius: 18px;
+
+  font-size: 0.9rem;
+}
+
+
+/* ==================================================
+   RESPONSIVE DASHBOARD
+================================================== */
+
+@media (max-width: 1100px) {
+
+  .dashboard-resumen {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .dashboard-dos-columnas {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+@media (max-width: 700px) {
+
+  .dashboard-resumen {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-estados {
+    padding: 20px;
+  }
+
+  .dashboard-seccion-titulo {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .dashboard-btn-link {
+    width: 100%;
+  }
+
+  .dashboard-estados-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-dos-columnas {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-card {
+    padding: 20px;
+  }
+
+  .rendimiento-superior {
+    gap: 10px;
+  }
+}

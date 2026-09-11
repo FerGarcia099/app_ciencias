@@ -9,6 +9,9 @@ import Usuarios from "./pages/Usuarios"
 import Contenidos from "./pages/Contenidos"
 import ContenidoAlumno from "./pages/ContenidoAlumno"
 import Seguimiento from "./pages/Seguimiento"
+import Parametrizaciones from "./pages/Parametrizaciones"
+import Matriculas from "./pages/Matriculas"
+import AsignacionesDocente from "./pages/AsignacionesDocente"
 
 import ProtectedRoute from "./components/ProtectedRoute"
 
@@ -71,6 +74,34 @@ function AppRouter() {
         element={
           <ProtectedRoute rolesPermitidos={["maestro"]}>
             <Seguimiento />
+          </ProtectedRoute>
+        }
+      />
+
+
+      <Route
+        path="/parametrizaciones"
+        element={
+          <ProtectedRoute rolesPermitidos={["maestro"]}>
+            <Parametrizaciones />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/matriculas"
+        element={
+          <ProtectedRoute rolesPermitidos={["maestro"]}>
+            <Matriculas />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/asignaciones-docente"
+        element={
+          <ProtectedRoute rolesPermitidos={["maestro"]}>
+            <AsignacionesDocente />
           </ProtectedRoute>
         }
       />

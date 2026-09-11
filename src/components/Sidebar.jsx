@@ -55,6 +55,25 @@ function Sidebar() {
           <span className="sidebar-icon">📊</span>
           <span>Seguimiento</span>
         </NavLink>
+
+        <div className="sidebar-separador sidebar-separador-interno">CONFIGURACIÓN</div>
+
+        <NavLink to="/parametrizaciones" className={claseLink}>
+          <span className="sidebar-icon">⚙️</span>
+          <span>Parametrizaciones</span>
+        </NavLink>
+
+        <div className="sidebar-separador sidebar-separador-interno">GESTIÓN ACADÉMICA</div>
+
+        <NavLink to="/matriculas" className={claseLink}>
+          <span className="sidebar-icon">📝</span>
+          <span>Matrículas</span>
+        </NavLink>
+
+        <NavLink to="/asignaciones-docente" className={claseLink}>
+          <span className="sidebar-icon">🧑‍🏫</span>
+          <span>Asignaciones</span>
+        </NavLink>
       </nav>
 
       <div className="sidebar-footer">
