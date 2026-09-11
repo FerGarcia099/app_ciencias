@@ -13,6 +13,7 @@ function ContenidoAlumno() {
 
   const [contenido, setContenido] = useState(null)
   const [preguntas, setPreguntas] = useState([])
+  const [recursos, setRecursos] = useState([])
   const [respuestas, setRespuestas] = useState({})
   const [intento, setIntento] = useState(null)
   const [resultado, setResultado] = useState(null)
@@ -52,12 +53,14 @@ function ContenidoAlumno() {
       setError("")
       setBloqueado(false)
 
-      const [contenidoResponse, preguntasResponse] = await Promise.all([
+      const [contenidoResponse, preguntasResponse, recursosResponse] = await Promise.all([
         axios.get(`${API_URL}/contenidos/${id}`),
-        axios.get(`${API_URL}/contenidos/${id}/preguntas`)
+        axios.get(`${API_URL}/contenidos/${id}/preguntas`),
+        axios.get(`${API_URL}/recursos/contenido/${id}`)
       ])
 
       setContenido(contenidoResponse.data)
+      setRecursos(Array.isArray(recursosResponse.data) ? recursosResponse.data : [])
 
       const listaPreguntas = Array.isArray(preguntasResponse.data)
         ? preguntasResponse.data
@@ -263,6 +266,40 @@ function ContenidoAlumno() {
             <p>{contenido.descripcion}</p>
           </div>
         </section>
+
+        {recursos.length > 0 && (
+          <section className="recursos-alumno-card">
+            <div className="recursos-alumno-header">
+              <span>📎 MATERIAL DE APOYO</span>
+              <h2>Recursos para aprender mejor</h2>
+            </div>
+
+            <div className="recursos-alumno-grid">
+              {recursos.map((recurso) => (
+                <a
+                  key={recurso.id}
+                  className="recurso-alumno-item"
+                  href={recurso.url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <div className="recurso-alumno-icono">
+                    {recurso.tipo === "video" && "🎥"}
+                    {recurso.tipo === "enlace" && "🔗"}
+                    {recurso.tipo === "documento" && "📄"}
+                    {recurso.tipo === "imagen" && "🖼️"}
+                    {recurso.tipo === "otro" && "📎"}
+                  </div>
+                  <div>
+                    <strong>{recurso.titulo}</strong>
+                    <p>{recurso.descripcion || "Abrir material complementario"}</p>
+                  </div>
+                  <span>↗</span>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
 
         {bloqueado && resultado && (
           <section className="actividad-bloqueada-card">

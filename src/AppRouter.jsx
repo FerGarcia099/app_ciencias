@@ -12,6 +12,10 @@ import Seguimiento from "./pages/Seguimiento"
 import Parametrizaciones from "./pages/Parametrizaciones"
 import Matriculas from "./pages/Matriculas"
 import AsignacionesDocente from "./pages/AsignacionesDocente"
+import Tareas from "./pages/Tareas"
+import EntregasTareas from "./pages/EntregasTareas"
+import Recursos from "./pages/Recursos"
+import MisTareas from "./pages/MisTareas"
 
 import ProtectedRoute from "./components/ProtectedRoute"
 
@@ -106,6 +110,33 @@ function AppRouter() {
         }
       />
 
+      <Route
+        path="/tareas"
+        element={
+          <ProtectedRoute rolesPermitidos={["maestro"]}>
+            <Tareas />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/entregas-tareas"
+        element={
+          <ProtectedRoute rolesPermitidos={["maestro"]}>
+            <EntregasTareas />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/recursos"
+        element={
+          <ProtectedRoute rolesPermitidos={["maestro"]}>
+            <Recursos />
+          </ProtectedRoute>
+        }
+      />
+
       {/* ================================
           RUTAS DEL ALUMNO
       ================================= */}
@@ -132,6 +163,15 @@ function AppRouter() {
         element={
           <ProtectedRoute rolesPermitidos={["alumno"]}>
             <PanelAlumno />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/mis-tareas"
+        element={
+          <ProtectedRoute rolesPermitidos={["alumno"]}>
+            <MisTareas />
           </ProtectedRoute>
         }
       />

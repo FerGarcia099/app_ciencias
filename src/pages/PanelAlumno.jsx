@@ -102,6 +102,13 @@ export default function PanelAlumno() {
               📘 Ver contenidos y actividades
             </button>
 
+            <button
+              className="btn-principal"
+              onClick={() => navigate("/mis-tareas")}
+            >
+              📝 Mis tareas
+            </button>
+
             <button className="btn-salir" onClick={cerrarSesion}>
               🚪 Cerrar sesión
             </button>

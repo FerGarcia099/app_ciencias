@@ -51,6 +51,23 @@ function Sidebar() {
           <span>Contenidos</span>
         </NavLink>
 
+        <div className="sidebar-separador sidebar-separador-interno">APRENDIZAJE</div>
+
+        <NavLink to="/tareas" className={claseLink}>
+          <span className="sidebar-icon">📝</span>
+          <span>Tareas</span>
+        </NavLink>
+
+        <NavLink to="/entregas-tareas" className={claseLink}>
+          <span className="sidebar-icon">📥</span>
+          <span>Entregas</span>
+        </NavLink>
+
+        <NavLink to="/recursos" className={claseLink}>
+          <span className="sidebar-icon">📎</span>
+          <span>Recursos</span>
+        </NavLink>
+
         <NavLink to="/seguimiento" className={claseLink}>
           <span className="sidebar-icon">📊</span>
           <span>Seguimiento</span>

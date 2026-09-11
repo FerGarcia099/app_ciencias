@@ -6,6 +6,8 @@ require("dotenv").config()
 const { crearToken, autenticarToken, autorizarRoles } = require("./security/auth")
 const { hashPassword, verificarPassword, esHashSeguro } = require("./security/passwords")
 const crearRutasAcademicas = require("./routes/academico")
+const crearRutasTareas = require("./routes/tareas")
+const crearRutasRecursos = require("./routes/recursos")
 
 const app = express()
 
@@ -201,6 +203,10 @@ app.use(autenticarToken)
 
 // Modulo academico: 5 parametrizaciones, matriculas y asignaciones docentes.
 app.use("/academico", crearRutasAcademicas({ conexion, autorizarRoles }))
+
+// Etapa 2: tareas, entregas y recursos educativos.
+app.use("/tareas", crearRutasTareas({ conexion, autorizarRoles }))
+app.use("/recursos", crearRutasRecursos({ conexion, autorizarRoles }))
 
 app.get("/auth/me", (req, res) => {
   return res.json({

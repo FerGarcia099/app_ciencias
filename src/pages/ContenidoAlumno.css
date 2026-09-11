@@ -717,3 +717,89 @@
   .actividad-bloqueada-card { align-items: flex-start; padding: 20px; }
   .candado-grande { font-size: 38px; }
 }
+
+
+/* =========================================
+   RECURSOS EDUCATIVOS - ETAPA 2
+========================================= */
+.recursos-alumno-card {
+  margin: 24px 0;
+  padding: 24px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 12px 28px rgba(71, 74, 115, 0.09);
+}
+
+.recursos-alumno-header span {
+  color: #6d55cf;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.recursos-alumno-header h2 {
+  margin: 7px 0 18px;
+  color: #3c3150;
+}
+
+.recursos-alumno-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.recurso-alumno-item {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px;
+  border: 1px solid #e9e5f3;
+  border-radius: 17px;
+  background: #faf9ff;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.recurso-alumno-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 9px 20px rgba(82, 67, 145, 0.1);
+}
+
+.recurso-alumno-icono {
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  background: #eee9ff;
+  font-size: 1.4rem;
+}
+
+.recurso-alumno-item > div:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+
+.recurso-alumno-item strong {
+  display: block;
+  color: #413650;
+}
+
+.recurso-alumno-item p {
+  margin: 4px 0 0;
+  color: #766f80;
+  font-size: 0.84rem;
+}
+
+.recurso-alumno-item > span {
+  color: #7358d2;
+  font-weight: 800;
+}
+
+@media (max-width: 700px) {
+  .recursos-alumno-grid {
+    grid-template-columns: 1fr;
+  }
+}
