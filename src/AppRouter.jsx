@@ -16,6 +16,7 @@ import Tareas from "./pages/Tareas"
 import EntregasTareas from "./pages/EntregasTareas"
 import Recursos from "./pages/Recursos"
 import MisTareas from "./pages/MisTareas"
+import AsistenteIA from "./pages/AsistenteIA"
 
 import ProtectedRoute from "./components/ProtectedRoute"
 
@@ -133,6 +134,15 @@ function AppRouter() {
         element={
           <ProtectedRoute rolesPermitidos={["maestro"]}>
             <Recursos />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/asistente-ia"
+        element={
+          <ProtectedRoute rolesPermitidos={["maestro"]}>
+            <AsistenteIA />
           </ProtectedRoute>
         }
       />

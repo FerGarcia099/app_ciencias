@@ -8,6 +8,7 @@ const { hashPassword, verificarPassword, esHashSeguro } = require("./security/pa
 const crearRutasAcademicas = require("./routes/academico")
 const crearRutasTareas = require("./routes/tareas")
 const crearRutasRecursos = require("./routes/recursos")
+const crearRutasInteligenciaArtificial = require("./routes/inteligenciaArtificial")
 
 const app = express()
 
@@ -207,6 +208,9 @@ app.use("/academico", crearRutasAcademicas({ conexion, autorizarRoles }))
 // Etapa 2: tareas, entregas y recursos educativos.
 app.use("/tareas", crearRutasTareas({ conexion, autorizarRoles }))
 app.use("/recursos", crearRutasRecursos({ conexion, autorizarRoles }))
+
+// Etapa 3: Inteligencia Artificial para generación y análisis pedagógico.
+app.use("/ia", crearRutasInteligenciaArtificial({ conexion, autorizarRoles }))
 
 app.get("/auth/me", (req, res) => {
   return res.json({

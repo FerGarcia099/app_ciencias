@@ -73,6 +73,13 @@ function Sidebar() {
           <span>Seguimiento</span>
         </NavLink>
 
+        <div className="sidebar-separador sidebar-separador-interno">INTELIGENCIA ARTIFICIAL</div>
+
+        <NavLink to="/asistente-ia" className={claseLink}>
+          <span className="sidebar-icon">🤖</span>
+          <span>Asistente IA</span>
+        </NavLink>
+
         <div className="sidebar-separador sidebar-separador-interno">CONFIGURACIÓN</div>
 
         <NavLink to="/parametrizaciones" className={claseLink}>
