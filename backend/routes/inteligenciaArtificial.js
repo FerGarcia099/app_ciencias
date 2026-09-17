@@ -54,13 +54,24 @@ function crearRutasInteligenciaArtificial({ conexion, autorizarRoles }) {
       })
     }
 
-    if (error?.code === "OPENAI_API_ERROR") {
-      return res.status(502).json({
-        status: "error",
-        codigo: "PROVEEDOR_IA",
-        mensaje: "No fue posible completar la solicitud con el proveedor de IA."
-      })
-    }
+   if (error?.code === "GROQ_API_ERROR") {
+
+  if (error?.status === 429) {
+    return res.status(429).json({
+      status: "error",
+      codigo: "LIMITE_IA",
+      mensaje:
+        "Se alcanzó temporalmente el límite gratuito de Inteligencia Artificial. Intenta nuevamente más tarde."
+    })
+  }
+
+  return res.status(502).json({
+    status: "error",
+    codigo: "PROVEEDOR_IA",
+    mensaje:
+      "No fue posible completar la solicitud con el servicio de Inteligencia Artificial."
+  })
+}
 
     return res.status(500).json({
       status: "error",

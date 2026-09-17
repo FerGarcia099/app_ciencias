@@ -268,7 +268,7 @@ function AsistenteIA() {
             </div>
 
             <div className={`ia-estado ${estadoIA.configurada ? "ok" : "pendiente"}`}>
-              <strong>{estadoIA.configurada ? "● IA disponible" : "● IA sin configurar"}</strong>
+              <strong>{estadoIA.configurada ? "IA disponible" : "IA sin configurar"}</strong>
               <small>{estadoIA.modelo || "Sin modelo"}</small>
             </div>
           </section>
@@ -288,7 +288,7 @@ function AsistenteIA() {
               className={tab === "generar" ? "activo" : ""}
               onClick={() => setTab("generar")}
             >
-              ✨ Generar contenido
+              Generar contenido
             </button>
             <button
               className={tab === "analizar" ? "activo" : ""}
@@ -308,7 +308,7 @@ function AsistenteIA() {
             <section className="ia-layout-generador">
               <form className="ia-card ia-form" onSubmit={generar}>
                 <div className="ia-card-titulo">
-                  <span>✨ GENERADOR</span>
+                  <span>GENERADOR</span>
                   <h2>Crea una propuesta con IA</h2>
                   <p>La IA genera un borrador. Nada se publica sin tu aprobación.</p>
                 </div>
@@ -391,7 +391,7 @@ function AsistenteIA() {
                 </div>
 
                 <button className="ia-btn-principal" disabled={cargandoGeneracion}>
-                  {cargandoGeneracion ? "🤖 Generando propuesta..." : "✨ Generar con IA"}
+                  {cargandoGeneracion ? "🤖 Generando propuesta..." : " Generar con IA"}
                 </button>
               </form>
 
@@ -573,8 +573,8 @@ function AsistenteIA() {
                       disabled={cargandoRefuerzo}
                     >
                       {cargandoRefuerzo
-                        ? "✨ Creando actividad..."
-                        : "✨ Generar actividad de refuerzo"}
+                        ? "Creando actividad..."
+                        : "Generar actividad de refuerzo"}
                     </button>
 
                     {refuerzoActual && (

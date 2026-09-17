@@ -364,7 +364,7 @@ function Panel() {
   <div className="admin-hero-texto">
 
     <span className="admin-hero-etiqueta">
-      ✨ PANEL EDUCATIVO
+      PANEL EDUCATIVO
     </span>
 
     <h1>
