@@ -16,19 +16,35 @@ function crearRutasInteligenciaArtificial({ conexion, autorizarRoles }) {
       })
     })
 
-  const beginTransaction = () =>
+  const obtenerConexion = () =>
     new Promise((resolve, reject) => {
-      conexion.beginTransaction((err) => (err ? reject(err) : resolve()))
+      conexion.getConnection((err, dbConnection) => {
+        if (err) return reject(err)
+        resolve(dbConnection)
+      })
     })
 
-  const commit = () =>
+  const queryDb = (dbConnection, sql, params = []) =>
     new Promise((resolve, reject) => {
-      conexion.commit((err) => (err ? reject(err) : resolve()))
+      dbConnection.query(sql, params, (err, rows) => {
+        if (err) return reject(err)
+        resolve(rows)
+      })
     })
 
-  const rollback = () =>
+  const beginTransaction = (dbConnection) =>
+    new Promise((resolve, reject) => {
+      dbConnection.beginTransaction((err) => (err ? reject(err) : resolve()))
+    })
+
+  const commit = (dbConnection) =>
+    new Promise((resolve, reject) => {
+      dbConnection.commit((err) => (err ? reject(err) : resolve()))
+    })
+
+  const rollback = (dbConnection) =>
     new Promise((resolve) => {
-      conexion.rollback(() => resolve())
+      dbConnection.rollback(() => resolve())
     })
 
   const jsonSeguro = (valor, fallback = null) => {
@@ -50,7 +66,7 @@ function crearRutasInteligenciaArtificial({ conexion, autorizarRoles }) {
         status: "error",
         codigo: "IA_NO_CONFIGURADA",
         mensaje:
-          "La Inteligencia Artificial todavía no está configurada. Agrega OPENAI_API_KEY en las variables del backend."
+          "La Inteligencia Artificial todavía no está configurada. Agrega GROQ_API_KEY en las variables del backend."
       })
     }
 
@@ -470,6 +486,7 @@ Cantidad exacta de preguntas: ${cantidadPreguntas}
   // ============================================================
   router.post("/generaciones/:id/aprobar", autorizarRoles("maestro"), async (req, res) => {
     const generacionId = Number(req.params.id)
+    let dbConnection = null
 
     try {
       const rows = await query(
@@ -498,7 +515,8 @@ Cantidad exacta de preguntas: ${cantidadPreguntas}
       const salida = jsonSeguro(generacion.salida_json, {})
       const preguntas = Array.isArray(salida?.preguntas) ? salida.preguntas : []
 
-      await beginTransaction()
+      dbConnection = await obtenerConexion()
+      await beginTransaction(dbConnection)
 
       let contenidoId = generacion.contenido_origen_id
 
@@ -512,7 +530,7 @@ Cantidad exacta de preguntas: ${cantidadPreguntas}
           .filter(Boolean)
           .join("\n\n")
 
-        const insertContenido = await query(
+        const insertContenido = await queryDb(dbConnection,
           `
             INSERT INTO contenidos (titulo, descripcion, grado, activo)
             VALUES (?, ?, ?, 1)
@@ -524,7 +542,9 @@ Cantidad exacta de preguntas: ${cantidadPreguntas}
       }
 
       if (!contenidoId) {
-        await rollback()
+        await rollback(dbConnection)
+        dbConnection.release()
+        dbConnection = null
         return res.status(400).json({ status: "error", mensaje: "No existe un contenido destino" })
       }
 
@@ -533,7 +553,7 @@ Cantidad exacta de preguntas: ${cantidadPreguntas}
 
         if (!["A", "B", "C", "D"].includes(respuesta)) continue
 
-        await query(
+        await queryDb(dbConnection,
           `
             INSERT INTO preguntas
             (
@@ -561,7 +581,7 @@ Cantidad exacta de preguntas: ${cantidadPreguntas}
         )
       }
 
-      await query(
+      await queryDb(dbConnection,
         `
           UPDATE ia_generaciones
           SET estado = 'aprobada', contenido_creado_id = ?
@@ -570,7 +590,9 @@ Cantidad exacta de preguntas: ${cantidadPreguntas}
         [contenidoId, generacionId]
       )
 
-      await commit()
+      await commit(dbConnection)
+      dbConnection.release()
+      dbConnection = null
 
       return res.json({
         status: "ok",
@@ -582,7 +604,11 @@ Cantidad exacta de preguntas: ${cantidadPreguntas}
         preguntas_agregadas: preguntas.length
       })
     } catch (error) {
-      await rollback().catch(() => {})
+      if (dbConnection) {
+        await rollback(dbConnection).catch(() => {})
+        dbConnection.release()
+      }
+
       return errorIA(res, error, "Error al aprobar la propuesta de IA")
     }
   })

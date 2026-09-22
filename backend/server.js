@@ -1,7 +1,8 @@
 const express = require("express")
-const mysql = require("mysql2")
 const cors = require("cors")
 require("dotenv").config()
+
+const { conexion, probarConexion } = require("./database")
 
 const { crearToken, autenticarToken, autorizarRoles } = require("./security/auth")
 const { hashPassword, verificarPassword, esHashSeguro } = require("./security/passwords")
@@ -43,25 +44,7 @@ app.use((req, res, next) => {
   next()
 })
 
-// ========================================
-// CONEXIÓN A MYSQL
-// ========================================
 
-const conexion = mysql.createConnection({
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT) || 3306,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME
-})
-
-conexion.connect((err) => {
-  if (err) {
-    console.log("Error de conexión a MySQL:", err)
-  } else {
-    console.log("MySQL conectado correctamente")
-  }
-})
 
 // ========================================
 // RUTA DE PRUEBA
@@ -70,6 +53,33 @@ conexion.connect((err) => {
 app.get("/", (req, res) => {
   res.send("Servidor funcionando correctamente")
 })
+
+app.get("/health", (req, res) => {
+  conexion.query("SELECT 1 AS ok", (err) => {
+    if (err) {
+      console.log("HEALTH MySQL error:", err.code, err.message)
+
+      return res.status(503).json({
+        status: "error",
+        servidor: "ok",
+        mysql: "desconectado",
+        codigo: err.code || "MYSQL_ERROR"
+      })
+    }
+
+    return res.json({
+      status: "ok",
+      servidor: "ok",
+      mysql: "conectado"
+    })
+  })
+})
+
+// ========================================
+// CONEXION A MYSQL
+// ========================================
+
+probarConexion()
 
 // ========================================
 // LOGIN
@@ -824,7 +834,7 @@ function obtenerDetalleRespuestasIntento(intentoId, callback) {
   conexion.query(sql, [intentoId], callback)
 }
 
-function crearIntento(usuarioId, contenidoId, numeroIntento, stats, callback) {
+function crearIntento(usuarioId, contenidoId, numeroIntento, stats, callback, db = conexion) {
   const sql = `
     INSERT INTO intentos_evaluacion
     (
@@ -842,7 +852,7 @@ function crearIntento(usuarioId, contenidoId, numeroIntento, stats, callback) {
     VALUES (?, ?, ?, 'en_progreso', ?, 0, 0, ?, 0, 0)
   `
 
-  conexion.query(
+  db.query(
     sql,
     [usuarioId, contenidoId, numeroIntento, stats.preguntas_totales, stats.puntaje_total],
     (err, result) => {
@@ -971,46 +981,66 @@ app.post("/intentos/iniciar", autorizarRoles("alumno"), (req, res) => {
         })
       }
 
-      conexion.beginTransaction((transactionError) => {
-        if (transactionError) {
+      conexion.getConnection((connectionError, dbConnection) => {
+        if (connectionError) {
+          console.log("Error al obtener conexion para transaccion:", connectionError)
           return res.status(500).json({ status: "error", mensaje: "No se pudo iniciar el nuevo intento" })
         }
 
-        conexion.query(
-          "UPDATE intentos_evaluacion SET reintento_habilitado = 0 WHERE id = ?",
-          [ultimo.id],
-          (err) => {
-            if (err) {
-              return conexion.rollback(() => {
-                res.status(500).json({ status: "error", mensaje: "No se pudo habilitar el nuevo intento" })
-              })
-            }
+        const rollbackAndRespond = (status, body) => {
+          dbConnection.rollback(() => {
+            dbConnection.release()
+            return res.status(status).json(body)
+          })
+        }
 
-            crearIntento(
-              usuario_id,
-              contenido_id,
-              Number(ultimo.numero_intento) + 1,
-              stats,
-              (err, intento) => {
-                if (err) {
-                  return conexion.rollback(() => {
-                    res.status(500).json({ status: "error", mensaje: "No se pudo crear el nuevo intento" })
-                  })
-                }
+        dbConnection.beginTransaction((transactionError) => {
+          if (transactionError) {
+            dbConnection.release()
+            return res.status(500).json({ status: "error", mensaje: "No se pudo iniciar el nuevo intento" })
+          }
 
-                conexion.commit((commitError) => {
-                  if (commitError) {
-                    return conexion.rollback(() => {
-                      res.status(500).json({ status: "error", mensaje: "No se pudo confirmar el nuevo intento" })
+          dbConnection.query(
+            "UPDATE intentos_evaluacion SET reintento_habilitado = 0 WHERE id = ?",
+            [ultimo.id],
+            (err) => {
+              if (err) {
+                return rollbackAndRespond(500, {
+                  status: "error",
+                  mensaje: "No se pudo habilitar el nuevo intento"
+                })
+              }
+
+              crearIntento(
+                usuario_id,
+                contenido_id,
+                Number(ultimo.numero_intento) + 1,
+                stats,
+                (err, intento) => {
+                  if (err) {
+                    return rollbackAndRespond(500, {
+                      status: "error",
+                      mensaje: "No se pudo crear el nuevo intento"
                     })
                   }
 
-                  return res.json({ status: "ok", intento, respuestas: [] })
-                })
-              }
-            )
-          }
-        )
+                  dbConnection.commit((commitError) => {
+                    if (commitError) {
+                      return rollbackAndRespond(500, {
+                        status: "error",
+                        mensaje: "No se pudo confirmar el nuevo intento"
+                      })
+                    }
+
+                    dbConnection.release()
+                    return res.json({ status: "ok", intento, respuestas: [] })
+                  })
+                },
+                dbConnection
+              )
+            }
+          )
+        })
       })
     })
   })
