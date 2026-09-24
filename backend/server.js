@@ -10,6 +10,7 @@ const crearRutasAcademicas = require("./routes/academico")
 const crearRutasTareas = require("./routes/tareas")
 const crearRutasRecursos = require("./routes/recursos")
 const crearRutasInteligenciaArtificial = require("./routes/inteligenciaArtificial")
+const crearRutasAlumnosAcademico = require("./routes/alumnosAcademico")
 
 const app = express()
 
@@ -232,6 +233,12 @@ app.use("/recursos", crearRutasRecursos({ conexion, autorizarRoles }))
 
 // Etapa 3: Inteligencia Artificial para generación y análisis pedagógico.
 app.use("/ia", crearRutasInteligenciaArtificial({ conexion, autorizarRoles }))
+
+// Dashboard académico de alumnos para maestros.
+app.use(
+  "/alumnos-academico",
+  crearRutasAlumnosAcademico({ conexion, autorizarRoles })
+)
 
 app.get("/auth/me", (req, res) => {
   return res.json({
@@ -585,36 +592,8 @@ app.put(
 // ALUMNOS
 // ========================================
 
-app.post("/alumnos", autorizarRoles("maestro"), (req, res) => {
-  const { nombre, grado, seccion } = req.body
-
-  if (!nombre || !grado || !seccion) {
-    return res.json({
-      status: "error",
-      mensaje: "Todos los campos son obligatorios"
-    })
-  }
-
-  const sql = `
-    INSERT INTO alumnos(nombre, grado, seccion)
-    VALUES (?, ?, ?)
-  `
-
-  conexion.query(sql, [nombre, grado, seccion], (err) => {
-    if (err) {
-      console.log("Error al registrar alumno:", err)
-      return res.status(500).json({
-        status: "error",
-        mensaje: "Error al guardar alumno"
-      })
-    }
-
-    return res.json({
-      status: "ok",
-      mensaje: "Alumno registrado correctamente"
-    })
-  })
-})
+// La creación de alumnos se realiza desde Usuarios + Matrículas.
+// Se eliminó la ruta antigua POST /alumnos para evitar duplicar estudiantes.
 
 app.get("/alumnos", autorizarRoles("maestro"), (req, res) => {
   const sql = `

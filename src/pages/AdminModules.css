@@ -792,3 +792,356 @@
   outline: 3px solid rgba(129, 92, 244, 0.25);
   outline-offset: 2px;
 }
+
+/* =========================================
+   FASE 2 - DASHBOARD ACADÉMICO DE ALUMNOS
+========================================= */
+
+.alumnos-dashboard-page {
+  background:
+    radial-gradient(circle at top left, rgba(102, 126, 234, 0.08), transparent 32%),
+    linear-gradient(180deg, #f5f7ff 0%, #f8fbff 100%);
+}
+
+.alumnos-dashboard-header {
+  margin-bottom: 20px;
+}
+
+.alumnos-metricas-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.alumnos-metrica-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 122px;
+  padding: 20px;
+  border: 1px solid rgba(109, 83, 190, 0.08);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 12px 30px rgba(61, 52, 91, 0.08);
+}
+
+.alumnos-metrica-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  min-width: 50px;
+  height: 50px;
+  border-radius: 16px;
+  background: #f0ecff;
+  font-size: 1.55rem;
+}
+
+.alumnos-metrica-card span,
+.alumnos-metrica-card strong,
+.alumnos-metrica-card small {
+  display: block;
+}
+
+.alumnos-metrica-card span {
+  color: #756e7e;
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.alumnos-metrica-card strong {
+  margin-top: 4px;
+  color: #312945;
+  font-size: 1.75rem;
+  line-height: 1.05;
+}
+
+.alumnos-metrica-card small {
+  margin-top: 5px;
+  color: #91899a;
+  line-height: 1.3;
+}
+
+.alumnos-filtros-card,
+.alumnos-listado-card {
+  margin-top: 20px;
+}
+
+.alumnos-card-header-inline {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.alumnos-filtros-grid {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.6fr) repeat(3, minmax(160px, 1fr));
+  gap: 14px;
+  align-items: end;
+}
+
+.alumnos-filtro-busqueda input {
+  min-width: 0;
+}
+
+.alumnos-btn-limpiar {
+  flex-shrink: 0;
+  border: 1px solid #ddd6ed;
+  border-radius: 13px;
+  padding: 10px 14px;
+  background: #faf9fd;
+  color: #62586f;
+  font-family: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.alumnos-btn-limpiar:hover {
+  transform: translateY(-1px);
+  background: #f1edfa;
+}
+
+.alumnos-leyenda {
+  max-width: 300px;
+  padding: 9px 12px;
+  border-radius: 13px;
+  background: #f7f4ff;
+  color: #756b82;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.alumnos-alerta-error {
+  margin-bottom: 16px;
+  padding: 13px 15px;
+  border-radius: 14px;
+  background: #fff0f2;
+  color: #b04457;
+  font-weight: 700;
+}
+
+.alumnos-cargando {
+  padding: 42px 15px;
+}
+
+.alumnos-tabla {
+  min-width: 1050px;
+}
+
+.alumno-usuario {
+  display: block;
+  margin-top: 3px;
+  color: #8d8696;
+  font-size: 0.75rem;
+}
+
+.alumno-matricula-resumen strong,
+.alumno-matricula-resumen span {
+  display: block;
+}
+
+.alumno-matricula-resumen strong {
+  color: #4a4255;
+}
+
+.alumno-matricula-resumen span {
+  margin-top: 3px;
+  color: #8c8496;
+  font-size: 0.76rem;
+}
+
+.alumno-sin-matricula {
+  display: inline-flex;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #fff3df;
+  color: #a36d1f;
+  font-size: 0.76rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.alumno-promedio {
+  color: #4b3e76;
+  font-size: 1rem;
+}
+
+.alumno-progreso-cell {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 145px;
+}
+
+.alumno-progreso-track {
+  width: 92px;
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #ece8f3;
+}
+
+.alumno-progreso-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #7457df, #4f95ec);
+  transition: width 0.25s ease;
+}
+
+.alumno-progreso-cell span {
+  min-width: 43px;
+  color: #6b6375;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.alumno-pendientes {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 35px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+.alumno-pendientes.con-pendientes {
+  background: #fff0dc;
+  color: #a46618;
+}
+
+.alumno-pendientes.sin-pendientes {
+  background: #e8f8ed;
+  color: #2e8150;
+}
+
+.alumno-estado {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.alumno-estado-sin-matricula {
+  background: #fff0df;
+  color: #a46b1e;
+}
+
+.alumno-estado-sin-datos {
+  background: #efedf5;
+  color: #746c7c;
+}
+
+.alumno-estado-refuerzo {
+  background: #ffe7eb;
+  color: #b34256;
+}
+
+.alumno-estado-seguimiento {
+  background: #fff4d8;
+  color: #967021;
+}
+
+.alumno-estado-bien {
+  background: #e7f7eb;
+  color: #2f7e4b;
+}
+
+.alumno-btn-resumen {
+  border: none;
+  border-radius: 12px;
+  padding: 9px 12px;
+  background: #eee9ff;
+  color: #5d49ba;
+  font-family: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: 0.2s;
+}
+
+.alumno-btn-resumen:hover {
+  transform: translateY(-1px);
+  background: #e2daff;
+}
+
+.alumno-resumen-modal {
+  width: min(640px, 100%);
+}
+
+.alumno-resumen-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.alumno-resumen-grid article {
+  min-height: 96px;
+  padding: 15px;
+  border-radius: 16px;
+  background: #f8f6fc;
+}
+
+.alumno-resumen-grid span,
+.alumno-resumen-grid strong {
+  display: block;
+}
+
+.alumno-resumen-grid span {
+  color: #817989;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.alumno-resumen-grid strong {
+  margin-top: 8px;
+  color: #3b324e;
+  font-size: 1.05rem;
+}
+
+.alumno-resumen-nota {
+  margin-top: 16px;
+  padding: 13px 15px;
+  border-radius: 14px;
+  background: #eef7ff;
+  color: #526a7b;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 1180px) {
+  .alumnos-metricas-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .alumnos-filtros-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .alumnos-metricas-grid,
+  .alumnos-filtros-grid,
+  .alumno-resumen-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .alumnos-card-header-inline {
+    flex-direction: column;
+  }
+
+  .alumnos-btn-limpiar,
+  .alumnos-leyenda {
+    width: 100%;
+    max-width: none;
+  }
+}

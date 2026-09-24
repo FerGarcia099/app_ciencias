@@ -113,12 +113,14 @@ function crearRutasAcademicas({ conexion, autorizarRoles }) {
             SELECT id, nombre, usuario
             FROM usuarios
             WHERE LOWER(TRIM(rol)) = 'alumno'
+              AND activo = 1
             ORDER BY nombre ASC
           `),
           query(`
             SELECT id, nombre, usuario
             FROM usuarios
             WHERE LOWER(TRIM(rol)) = 'maestro'
+              AND activo = 1
             ORDER BY nombre ASC
           `),
           query(`SELECT * FROM grados WHERE activo = 1 ORDER BY orden, nombre`),
@@ -390,7 +392,7 @@ function crearRutasAcademicas({ conexion, autorizarRoles }) {
         SELECT
           EXISTS(
             SELECT 1 FROM usuarios
-            WHERE id = ? AND LOWER(TRIM(rol)) = 'alumno'
+            WHERE id = ? AND LOWER(TRIM(rol)) = 'alumno' AND activo = 1
           ) AS alumno_ok,
           EXISTS(SELECT 1 FROM grados WHERE id = ? AND activo = 1) AS grado_ok,
           EXISTS(SELECT 1 FROM secciones WHERE id = ? AND activo = 1) AS seccion_ok,
@@ -563,7 +565,7 @@ function crearRutasAcademicas({ conexion, autorizarRoles }) {
         SELECT
           EXISTS(
             SELECT 1 FROM usuarios
-            WHERE id = ? AND LOWER(TRIM(rol)) = 'maestro'
+            WHERE id = ? AND LOWER(TRIM(rol)) = 'maestro' AND activo = 1
           ) AS maestro_ok,
           EXISTS(SELECT 1 FROM cursos WHERE id = ? AND activo = 1) AS curso_ok,
           EXISTS(SELECT 1 FROM grados WHERE id = ? AND activo = 1) AS grado_ok,
