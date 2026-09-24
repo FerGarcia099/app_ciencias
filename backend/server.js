@@ -128,10 +128,10 @@ app.post("/login", limitarLogin, (req, res) => {
   }
 
   const sql = `
-    SELECT id, nombre, usuario, rol, password
-    FROM usuarios
-    WHERE usuario = ?
-    LIMIT 1
+  SELECT id, nombre, usuario, rol, password, activo
+  FROM usuarios
+  WHERE usuario = ?
+  LIMIT 1
   `
 
   conexion.query(sql, [usuario], (err, result) => {
@@ -152,7 +152,18 @@ app.post("/login", limitarLogin, (req, res) => {
     }
 
     const usuarioEncontrado = result[0]
-    const passwordValido = verificarPassword(password, usuarioEncontrado.password)
+
+if (!Number(usuarioEncontrado.activo)) {
+  return res.status(403).json({
+    status: "error",
+    mensaje: "Este usuario se encuentra desactivado"
+  })
+}
+
+const passwordValido = verificarPassword(
+  password,
+  usuarioEncontrado.password
+)
 
     if (!passwordValido) {
       return res.status(401).json({
@@ -269,8 +280,8 @@ app.post("/usuarios", autorizarRoles("maestro"), (req, res) => {
     }
 
     const sql = `
-      INSERT INTO usuarios(nombre, usuario, password, rol)
-      VALUES (?, ?, ?, ?)
+      INSERT INTO usuarios(nombre, usuario, password, rol, activo)
+      VALUES (?, ?, ?, ?, 1)
     `
 
     const passwordSeguro = hashPassword(password)
@@ -294,14 +305,15 @@ app.post("/usuarios", autorizarRoles("maestro"), (req, res) => {
 
 app.get("/usuarios", autorizarRoles("maestro"), (req, res) => {
   const sql = `
-    SELECT id, nombre, usuario, rol
+    SELECT id, nombre, usuario, rol, activo
     FROM usuarios
-    ORDER BY id DESC
+    ORDER BY activo DESC, nombre ASC
   `
 
   conexion.query(sql, (err, result) => {
     if (err) {
       console.log("Error al obtener usuarios:", err)
+
       return res.status(500).json({
         status: "error",
         mensaje: "Error al obtener usuarios"
@@ -311,6 +323,263 @@ app.get("/usuarios", autorizarRoles("maestro"), (req, res) => {
     return res.json(result)
   })
 })
+
+app.get("/usuarios/:id", autorizarRoles("maestro"), (req, res) => {
+  const { id } = req.params
+
+  const sql = `
+    SELECT id, nombre, usuario, rol, activo
+    FROM usuarios
+    WHERE id = ?
+    LIMIT 1
+  `
+
+  conexion.query(sql, [id], (err, result) => {
+    if (err) {
+      console.log("Error al obtener usuario:", err)
+
+      return res.status(500).json({
+        status: "error",
+        mensaje: "Error al obtener usuario"
+      })
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({
+        status: "error",
+        mensaje: "Usuario no encontrado"
+      })
+    }
+
+    return res.json(result[0])
+  })
+})
+
+app.put("/usuarios/:id", autorizarRoles("maestro"), (req, res) => {
+  const { id } = req.params
+  const { nombre, usuario, rol } = req.body
+
+  if (!nombre || !usuario || !rol) {
+    return res.status(400).json({
+      status: "error",
+      mensaje: "Nombre, usuario y rol son obligatorios"
+    })
+  }
+
+  if (rol !== "alumno" && rol !== "maestro") {
+    return res.status(400).json({
+      status: "error",
+      mensaje: "El rol debe ser alumno o maestro"
+    })
+  }
+
+  const verificarUsuario = `
+    SELECT id
+    FROM usuarios
+    WHERE usuario = ?
+      AND id <> ?
+    LIMIT 1
+  `
+
+  conexion.query(verificarUsuario, [usuario, id], (err, result) => {
+    if (err) {
+      console.log("Error al verificar usuario:", err)
+
+      return res.status(500).json({
+        status: "error",
+        mensaje: "Error al verificar el usuario"
+      })
+    }
+
+    if (result.length > 0) {
+      return res.status(409).json({
+        status: "error",
+        mensaje: "Ese nombre de usuario ya está siendo utilizado"
+      })
+    }
+
+    const sql = `
+      UPDATE usuarios
+      SET
+        nombre = ?,
+        usuario = ?,
+        rol = ?
+      WHERE id = ?
+    `
+
+    conexion.query(
+      sql,
+      [nombre, usuario, rol, id],
+      (err, result) => {
+        if (err) {
+          console.log("Error al actualizar usuario:", err)
+
+          return res.status(500).json({
+            status: "error",
+            mensaje: "Error al actualizar usuario"
+          })
+        }
+
+        if (result.affectedRows === 0) {
+          return res.status(404).json({
+            status: "error",
+            mensaje: "Usuario no encontrado"
+          })
+        }
+
+        return res.json({
+          status: "ok",
+          mensaje: "Usuario actualizado correctamente"
+        })
+      }
+    )
+  })
+})
+
+app.put(
+  "/usuarios/:id/password",
+  autorizarRoles("maestro"),
+  (req, res) => {
+    const { id } = req.params
+    const { password } = req.body
+
+    if (!password) {
+      return res.status(400).json({
+        status: "error",
+        mensaje: "La nueva contraseña es obligatoria"
+      })
+    }
+
+    if (password.length < 4) {
+      return res.status(400).json({
+        status: "error",
+        mensaje: "La contraseña debe tener al menos 4 caracteres"
+      })
+    }
+
+    const passwordSeguro = hashPassword(password)
+
+    const sql = `
+      UPDATE usuarios
+      SET password = ?
+      WHERE id = ?
+    `
+
+    conexion.query(
+      sql,
+      [passwordSeguro, id],
+      (err, result) => {
+        if (err) {
+          console.log("Error al cambiar contraseña:", err)
+
+          return res.status(500).json({
+            status: "error",
+            mensaje: "Error al cambiar la contraseña"
+          })
+        }
+
+        if (result.affectedRows === 0) {
+          return res.status(404).json({
+            status: "error",
+            mensaje: "Usuario no encontrado"
+          })
+        }
+
+        return res.json({
+          status: "ok",
+          mensaje: "Contraseña actualizada correctamente"
+        })
+      }
+    )
+  }
+)
+
+app.delete(
+  "/usuarios/:id",
+  autorizarRoles("maestro"),
+  (req, res) => {
+    const { id } = req.params
+
+    if (Number(id) === Number(req.usuario.id)) {
+      return res.status(400).json({
+        status: "error",
+        mensaje: "No puedes desactivar tu propio usuario"
+      })
+    }
+
+    const sql = `
+      UPDATE usuarios
+      SET activo = 0
+      WHERE id = ?
+        AND activo = 1
+    `
+
+    conexion.query(sql, [id], (err, result) => {
+      if (err) {
+        console.log("Error al desactivar usuario:", err)
+
+        return res.status(500).json({
+          status: "error",
+          mensaje: "Error al desactivar usuario"
+        })
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          status: "error",
+          mensaje: "Usuario no encontrado o ya se encuentra desactivado"
+        })
+      }
+
+      return res.json({
+        status: "ok",
+        mensaje: "Usuario desactivado correctamente"
+      })
+    })
+  }
+)
+
+// ========================================
+// REACTIVAR USUARIO
+// ========================================
+
+app.put(
+  "/usuarios/:id/restaurar",
+  autorizarRoles("maestro"),
+  (req, res) => {
+    const { id } = req.params
+
+    const sql = `
+      UPDATE usuarios
+      SET activo = 1
+      WHERE id = ?
+        AND activo = 0
+    `
+
+    conexion.query(sql, [id], (err, result) => {
+      if (err) {
+        console.log("Error al reactivar usuario:", err)
+
+        return res.status(500).json({
+          status: "error",
+          mensaje: "Error al reactivar usuario"
+        })
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          status: "error",
+          mensaje: "Usuario no encontrado o ya se encuentra activo"
+        })
+      }
+
+      return res.json({
+        status: "ok",
+        mensaje: "Usuario reactivado correctamente"
+      })
+    })
+  }
+)
 
 // ========================================
 // ALUMNOS

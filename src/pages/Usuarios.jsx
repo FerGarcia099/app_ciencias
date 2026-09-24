@@ -14,6 +14,14 @@ function Usuarios() {
   const [rol, setRol] = useState("alumno")
   const [usuarios, setUsuarios] = useState([])
 
+  const [modoEdicion, setModoEdicion] = useState(false)
+  const [usuarioEditandoId, setUsuarioEditandoId] = useState(null)
+  const [mostrarPassword, setMostrarPassword] = useState(false)
+  const [usuarioPasswordId, setUsuarioPasswordId] = useState(null)
+  const [usuarioPasswordNombre, setUsuarioPasswordNombre] = useState("")
+  const [nuevaPassword, setNuevaPassword] = useState("")
+  const [confirmarPassword, setConfirmarPassword] = useState("")
+
   useEffect(() => {
     obtenerUsuarios()
   }, [])
@@ -29,6 +37,31 @@ function Usuarios() {
         alert("Error al obtener usuarios")
       })
   }
+
+  const editarUsuario = (id) => {
+  axios
+    .get(`${API_URL}/usuarios/${id}`)
+    .then((res) => {
+      const item = res.data
+
+      setNombre(item.nombre)
+      setUsuario(item.usuario)
+      setRol(item.rol)
+
+      setPassword("")
+
+      setUsuarioEditandoId(item.id)
+      setModoEdicion(true)
+    })
+    .catch((error) => {
+      console.error(error)
+
+      alert(
+        error.response?.data?.mensaje ||
+          "Error al obtener usuario"
+      )
+    })
+}
 
   const guardarUsuario = () => {
     if (
@@ -74,6 +107,55 @@ function Usuarios() {
         alert("Error al conectar con el servidor")
       })
   }
+
+  const actualizarUsuario = () => {
+  if (
+    nombre.trim() === "" ||
+    usuario.trim() === "" ||
+    rol.trim() === ""
+  ) {
+    alert("Nombre, usuario y rol son obligatorios")
+    return
+  }
+
+  axios
+    .put(`${API_URL}/usuarios/${usuarioEditandoId}`, {
+      nombre,
+      usuario,
+      rol
+    })
+    .then((res) => {
+      if (res.data.status === "ok") {
+        alert("Usuario actualizado correctamente")
+
+        cancelarEdicion()
+        obtenerUsuarios()
+      } else {
+        alert(
+          res.data.mensaje ||
+            "Error al actualizar usuario"
+        )
+      }
+    })
+    .catch((error) => {
+      console.error(error)
+
+      alert(
+        error.response?.data?.mensaje ||
+          "Error al actualizar usuario"
+      )
+    })
+}
+
+const cancelarEdicion = () => {
+  setNombre("")
+  setUsuario("")
+  setPassword("")
+  setRol("alumno")
+
+  setUsuarioEditandoId(null)
+  setModoEdicion(false)
+}
 
   return (
     <>
@@ -144,17 +226,21 @@ function Usuarios() {
               <div className="admin-form-title">
 
                 <div className="admin-form-icon">
-                  ➕
-                </div>
+  {modoEdicion ? "✏️" : "➕"}
+</div>
 
                 <div>
                   <h2>
-                    Crear usuario
-                  </h2>
+  {modoEdicion
+    ? "Editar usuario"
+    : "Crear usuario"}
+</h2>
 
-                  <p>
-                    Ingresa los datos del nuevo usuario.
-                  </p>
+<p>
+  {modoEdicion
+    ? "Modifica los datos del usuario seleccionado."
+    : "Ingresa los datos del nuevo usuario."}
+</p>
                 </div>
 
               </div>
@@ -189,20 +275,22 @@ function Usuarios() {
                 />
               </div>
 
-              <div className="admin-field">
-                <label>
-                  Contraseña
-                </label>
+              {!modoEdicion && (
+  <div className="admin-field">
+    <label>
+      Contraseña
+    </label>
 
-                <input
-                  type="password"
-                  placeholder="Contraseña"
-                  value={password}
-                  onChange={(e) =>
-                    setPassword(e.target.value)
-                  }
-                />
-              </div>
+    <input
+      type="password"
+      placeholder="Contraseña"
+      value={password}
+      onChange={(e) =>
+        setPassword(e.target.value)
+      }
+    />
+  </div>
+)}
 
               <div className="admin-field">
                 <label>
@@ -227,24 +315,37 @@ function Usuarios() {
 
               <div className="admin-actions">
 
-                <button
-                  className="admin-primary"
-                  onClick={guardarUsuario}
-                >
-                  💾 Guardar usuario
-                </button>
+  <button
+    className="admin-primary"
+    onClick={
+      modoEdicion
+        ? actualizarUsuario
+        : guardarUsuario
+    }
+  >
+    {modoEdicion
+      ? "💾 Guardar cambios"
+      : "💾 Guardar usuario"}
+  </button>
 
-                <button
-                  className="admin-secondary"
-                  onClick={() =>
-                    navigate("/panel")
-                  }
-                >
-                  ← Regresar
-                </button>
+  {modoEdicion && (
+    <button
+      type="button"
+      className="admin-secondary"
+      onClick={cancelarEdicion}
+    >
+      ✖ Cancelar edición
+    </button>
+  )}
 
-              </div>
+  <button
+    className="admin-secondary"
+    onClick={() => navigate("/panel")}
+  >
+    ← Regresar
+  </button>
 
+</div>  
             </section>
 
             {/* LISTADO */}
@@ -272,12 +373,14 @@ function Usuarios() {
                 <table className="admin-table">
 
                   <thead>
-                    <tr>
-                      <th>Nombre</th>
-                      <th>Usuario</th>
-                      <th>Rol</th>
-                    </tr>
-                  </thead>
+  <tr>
+    <th>Nombre</th>
+    <th>Usuario</th>
+    <th>Rol</th>
+    <th>Estado</th>
+    <th>Acciones</th>
+  </tr>
+</thead>
 
                   <tbody>
 
@@ -306,15 +409,53 @@ function Usuarios() {
                             </span>
                           </td>
 
+                          <td>
+  {Number(item.activo) === 1 ? (
+    <span className="usuario-estado usuario-activo">
+      ● Activo
+    </span>
+  ) : (
+    <span className="usuario-estado usuario-inactivo">
+      ● Inactivo
+    </span>
+  )}
+</td>
+
+<td>
+  <div className="usuario-acciones">
+    <button
+  type="button"
+  title="Editar usuario"
+  onClick={() => editarUsuario(item.id)}
+>
+  ✏️
+</button>
+
+    <button type="button">
+      🔑
+    </button>
+
+    {Number(item.activo) === 1 ? (
+      <button type="button">
+        🚫
+      </button>
+    ) : (
+      <button type="button">
+        ✅
+      </button>
+    )}
+  </div>
+</td> 
+
                         </tr>
 
                       ))
                     ) : (
 
                       <tr>
-                        <td colSpan="3">
-                          No hay usuarios registrados
-                        </td>
+                        <td colSpan="5">
+  No hay usuarios registrados
+</td>
                       </tr>
 
                     )}
