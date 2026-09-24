@@ -1145,3 +1145,405 @@
     max-width: none;
   }
 }
+
+/* =========================================
+   FASE 3 - FICHA ACADÉMICA DEL ESTUDIANTE
+========================================= */
+
+.alumno-ficha-header {
+  gap: 24px;
+}
+
+.alumno-ficha-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.alumno-btn-volver {
+  border: 1px solid #ded7ef;
+  border-radius: 14px;
+  padding: 11px 15px;
+  background: #ffffff;
+  color: #5e536d;
+  font-family: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.alumno-btn-volver:hover {
+  transform: translateY(-1px);
+  background: #f7f4fd;
+}
+
+.alumno-ficha-contexto {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 22px;
+  margin-bottom: 20px;
+}
+
+.alumno-ficha-contexto small {
+  color: #765fe2;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+
+.alumno-ficha-contexto h2 {
+  margin: 6px 0 4px;
+}
+
+.alumno-ficha-contexto p {
+  margin: 0;
+  color: #82798e;
+}
+
+.alumno-periodo-selector {
+  width: min(360px, 100%);
+  margin-bottom: 0;
+}
+
+.alumno-ficha-metricas {
+  margin-bottom: 20px;
+}
+
+.alumno-ficha-tabs {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 10px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 10px 28px rgba(61, 52, 91, 0.07);
+}
+
+.alumno-ficha-tabs button {
+  border: none;
+  border-radius: 14px;
+  padding: 13px 12px;
+  background: transparent;
+  color: #71677e;
+  font-family: inherit;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.alumno-ficha-tabs button:hover {
+  background: #f3efff;
+}
+
+.alumno-ficha-tabs button.activo {
+  background: linear-gradient(135deg, #835af4, #5f48e6);
+  color: #ffffff;
+  box-shadow: 0 9px 22px rgba(101, 75, 224, 0.22);
+}
+
+.alumno-ficha-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.85fr);
+  gap: 20px;
+}
+
+.alumno-ficha-panel {
+  margin-bottom: 20px;
+}
+
+.alumno-contenidos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.alumno-contenido-item {
+  padding: 15px 16px;
+  border: 1px solid #eee9f6;
+  border-radius: 16px;
+  background: #fbfaff;
+}
+
+.alumno-contenido-cabecera {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 11px;
+}
+
+.alumno-contenido-cabecera strong,
+.alumno-contenido-cabecera span {
+  display: block;
+}
+
+.alumno-contenido-cabecera strong {
+  color: #3e354e;
+}
+
+.alumno-contenido-cabecera span {
+  margin-top: 3px;
+  color: #8a8293;
+  font-size: 0.76rem;
+}
+
+.alumno-contenido-cabecera b {
+  color: #6656a8;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.alumno-progreso-track-ancho {
+  width: 100%;
+}
+
+.alumno-datos-lista {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.alumno-datos-lista > div {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee9f5;
+}
+
+.alumno-datos-lista > div:last-child {
+  border-bottom: none;
+}
+
+.alumno-datos-lista span {
+  color: #8a8193;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.alumno-datos-lista strong {
+  max-width: 58%;
+  color: #43394f;
+  text-align: right;
+}
+
+.alumno-capitalize {
+  text-transform: capitalize;
+}
+
+.alumno-ficha-tabla {
+  min-width: 800px;
+}
+
+.alumno-resultado {
+  display: inline-flex;
+  min-width: 58px;
+  justify-content: center;
+  padding: 6px 9px;
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+.alumno-resultado.alto {
+  background: #e7f7eb;
+  color: #2f7e4b;
+}
+
+.alumno-resultado.medio {
+  background: #fff4d8;
+  color: #967021;
+}
+
+.alumno-resultado.bajo {
+  background: #ffe7eb;
+  color: #b34256;
+}
+
+.alumno-tareas-resumen {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.alumno-tareas-resumen span {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #f2eefc;
+  color: #675d73;
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.alumno-tabla-subtexto {
+  display: block;
+  margin-top: 4px;
+  color: #91899a;
+  font-size: 0.74rem;
+}
+
+.alumno-entrega-estado {
+  display: inline-flex;
+  padding: 6px 9px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.alumno-entrega-pendiente {
+  background: #fff1dd;
+  color: #9b691f;
+}
+
+.alumno-entrega-entregada {
+  background: #e8f1ff;
+  color: #376aa4;
+}
+
+.alumno-entrega-calificada {
+  background: #e7f7eb;
+  color: #2f7e4b;
+}
+
+.alumno-historial-lista {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.alumno-historial-item {
+  display: grid;
+  grid-template-columns: 92px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  padding: 16px;
+  border: 1px solid #eee9f5;
+  border-radius: 18px;
+  background: #fbfaff;
+  transition: 0.2s;
+}
+
+.alumno-historial-item.seleccionado {
+  border-color: #cfc1ff;
+  background: #f6f2ff;
+  box-shadow: 0 8px 22px rgba(108, 80, 215, 0.08);
+}
+
+.alumno-historial-anio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 58px;
+  border-radius: 15px;
+  background: #eee9ff;
+  color: #604bbb;
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+.alumno-historial-contenido strong,
+.alumno-historial-contenido span,
+.alumno-historial-contenido small {
+  display: block;
+}
+
+.alumno-historial-contenido strong {
+  color: #40364d;
+}
+
+.alumno-historial-contenido span {
+  margin-top: 3px;
+  color: #736a7e;
+}
+
+.alumno-historial-contenido small {
+  margin-top: 5px;
+  color: #98909f;
+  line-height: 1.4;
+}
+
+.alumno-matricula-estado {
+  display: inline-flex;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 900;
+  text-transform: capitalize;
+}
+
+.alumno-matricula-estado.estado-activo {
+  background: #e7f7eb;
+  color: #2f7e4b;
+}
+
+.alumno-matricula-estado.estado-finalizado {
+  background: #e8f1ff;
+  color: #3c6d9e;
+}
+
+.alumno-matricula-estado.estado-retirado {
+  background: #f2eef3;
+  color: #776e7c;
+}
+
+.alumno-ficha-cargando,
+.alumno-ficha-error {
+  margin-top: 50px;
+  padding: 50px 24px;
+  text-align: center;
+}
+
+.alumno-ficha-error h2 {
+  margin-bottom: 8px;
+}
+
+.alumno-ficha-error p {
+  margin-bottom: 20px;
+  color: #7e7588;
+}
+
+@media (max-width: 1050px) {
+  .alumno-ficha-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .alumno-ficha-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .alumno-ficha-contexto,
+  .alumno-ficha-header-actions,
+  .alumno-contenido-cabecera,
+  .alumno-datos-lista > div {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .alumno-periodo-selector {
+    width: 100%;
+  }
+
+  .alumno-ficha-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .alumno-datos-lista strong {
+    max-width: none;
+    text-align: left;
+  }
+
+  .alumno-historial-item {
+    grid-template-columns: 1fr;
+  }
+
+  .alumno-historial-anio {
+    min-height: 48px;
+  }
+}

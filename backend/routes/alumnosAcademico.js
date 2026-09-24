@@ -296,6 +296,353 @@ function crearRutasAlumnosAcademico({ conexion, autorizarRoles }) {
     }
   })
 
+  // ============================================================
+  // FASE 3 - FICHA ACADÉMICA COMPLETA DEL ESTUDIANTE
+  // ============================================================
+  router.get("/:id/ficha", async (req, res) => {
+    try {
+      const alumnoId = Number(req.params.id)
+
+      if (!alumnoId) {
+        return res.status(400).json({
+          status: "error",
+          mensaje: "El identificador del alumno no es válido"
+        })
+      }
+
+      const alumnoRows = await query(
+        `
+          SELECT id, nombre, usuario, activo
+          FROM usuarios
+          WHERE id = ?
+            AND LOWER(TRIM(rol)) = 'alumno'
+          LIMIT 1
+        `,
+        [alumnoId]
+      )
+
+      if (!alumnoRows.length) {
+        return res.status(404).json({
+          status: "error",
+          mensaje: "Alumno no encontrado"
+        })
+      }
+
+      const alumno = {
+        ...alumnoRows[0],
+        id: Number(alumnoRows[0].id),
+        activo: Boolean(Number(alumnoRows[0].activo))
+      }
+
+      const matriculasRows = await query(
+        `
+          SELECT
+            m.id,
+            m.usuario_id,
+            m.grado_id,
+            g.nombre AS grado,
+            m.seccion_id,
+            s.nombre AS seccion,
+            m.periodo_id,
+            p.nombre AS periodo,
+            p.anio,
+            p.estado AS periodo_estado,
+            p.fecha_inicio,
+            p.fecha_fin,
+            m.estado,
+            m.fecha_matricula,
+            m.observaciones
+          FROM matriculas m
+          INNER JOIN grados g ON g.id = m.grado_id
+          INNER JOIN secciones s ON s.id = m.seccion_id
+          INNER JOIN periodos_academicos p ON p.id = m.periodo_id
+          WHERE m.usuario_id = ?
+          ORDER BY
+            p.anio DESC,
+            p.fecha_inicio DESC,
+            m.id DESC
+        `,
+        [alumnoId]
+      )
+
+      const matriculas = matriculasRows.map((row) => ({
+        ...row,
+        id: Number(row.id),
+        usuario_id: Number(row.usuario_id),
+        grado_id: Number(row.grado_id),
+        seccion_id: Number(row.seccion_id),
+        periodo_id: Number(row.periodo_id),
+        anio: Number(row.anio)
+      }))
+
+      const periodoSolicitado = Number(req.query.periodo_id) || null
+      const matriculaSolicitada = periodoSolicitado
+        ? matriculas.find(
+            (item) => Number(item.periodo_id) === Number(periodoSolicitado)
+          )
+        : null
+
+      const matriculaActiva = matriculas.find(
+        (item) =>
+          item.periodo_estado === "activo" && item.estado === "activo"
+      )
+
+      const matriculaSeleccionada =
+        matriculaSolicitada || matriculaActiva || matriculas[0] || null
+
+      const periodoSeleccionado = matriculaSeleccionada
+        ? Number(matriculaSeleccionada.periodo_id)
+        : null
+
+      const evaluacionesRows = await query(
+        `
+          SELECT
+            i.id AS intento_id,
+            i.contenido_id,
+            c.titulo AS contenido,
+            i.numero_intento,
+            i.estado,
+            i.preguntas_totales,
+            i.preguntas_respondidas,
+            i.puntaje_obtenido,
+            i.puntaje_total,
+            i.porcentaje,
+            i.reintento_habilitado,
+            i.fecha_inicio,
+            i.fecha_fin
+          FROM intentos_evaluacion i
+          INNER JOIN contenidos c ON c.id = i.contenido_id
+          WHERE i.usuario_id = ?
+            AND i.estado = 'completado'
+          ORDER BY
+            i.fecha_fin DESC,
+            i.id DESC
+        `,
+        [alumnoId]
+      )
+
+      const evaluaciones = evaluacionesRows.map((row) => ({
+        ...row,
+        intento_id: Number(row.intento_id),
+        contenido_id: Number(row.contenido_id),
+        numero_intento: Number(row.numero_intento) || 0,
+        preguntas_totales: Number(row.preguntas_totales) || 0,
+        preguntas_respondidas: Number(row.preguntas_respondidas) || 0,
+        puntaje_obtenido: Number(row.puntaje_obtenido) || 0,
+        puntaje_total: Number(row.puntaje_total) || 0,
+        porcentaje: Number(row.porcentaje) || 0,
+        reintento_habilitado: Boolean(Number(row.reintento_habilitado))
+      }))
+
+      const ultimasEvaluacionesRows = await query(
+        `
+          SELECT
+            i.id AS intento_id,
+            i.contenido_id,
+            c.titulo AS contenido,
+            i.numero_intento,
+            i.porcentaje,
+            i.fecha_fin
+          FROM intentos_evaluacion i
+          INNER JOIN contenidos c
+            ON c.id = i.contenido_id
+            AND c.activo = 1
+          WHERE i.usuario_id = ?
+            AND i.estado = 'completado'
+            AND i.id = (
+              SELECT i2.id
+              FROM intentos_evaluacion i2
+              WHERE i2.usuario_id = i.usuario_id
+                AND i2.contenido_id = i.contenido_id
+                AND i2.estado = 'completado'
+              ORDER BY i2.numero_intento DESC, i2.id DESC
+              LIMIT 1
+            )
+          ORDER BY c.titulo ASC
+        `,
+        [alumnoId]
+      )
+
+      const ultimasEvaluaciones = ultimasEvaluacionesRows.map((row) => ({
+        ...row,
+        intento_id: Number(row.intento_id),
+        contenido_id: Number(row.contenido_id),
+        numero_intento: Number(row.numero_intento) || 0,
+        porcentaje: Number(row.porcentaje) || 0
+      }))
+
+      const progresoRows = await query(
+        `
+          SELECT
+            c.id AS contenido_id,
+            c.titulo AS contenido,
+            c.descripcion,
+            i.id AS intento_id,
+            i.numero_intento,
+            i.estado,
+            i.preguntas_totales,
+            i.preguntas_respondidas,
+            i.puntaje_obtenido,
+            i.puntaje_total,
+            i.porcentaje,
+            i.reintento_habilitado,
+            i.fecha_inicio,
+            i.fecha_fin
+          FROM contenidos c
+          LEFT JOIN intentos_evaluacion i
+            ON i.id = (
+              SELECT i2.id
+              FROM intentos_evaluacion i2
+              WHERE i2.usuario_id = ?
+                AND i2.contenido_id = c.id
+              ORDER BY i2.numero_intento DESC, i2.id DESC
+              LIMIT 1
+            )
+          WHERE c.activo = 1
+          ORDER BY c.titulo ASC
+        `,
+        [alumnoId]
+      )
+
+      const progreso = progresoRows.map((row) => ({
+        ...row,
+        contenido_id: Number(row.contenido_id),
+        intento_id: row.intento_id === null ? null : Number(row.intento_id),
+        numero_intento: Number(row.numero_intento) || 0,
+        preguntas_totales: Number(row.preguntas_totales) || 0,
+        preguntas_respondidas: Number(row.preguntas_respondidas) || 0,
+        puntaje_obtenido: Number(row.puntaje_obtenido) || 0,
+        puntaje_total: Number(row.puntaje_total) || 0,
+        porcentaje: row.porcentaje === null ? null : Number(row.porcentaje),
+        reintento_habilitado: Boolean(Number(row.reintento_habilitado))
+      }))
+
+      let tareas = []
+
+      if (matriculaSeleccionada) {
+        const tareasRows = await query(
+          `
+            SELECT DISTINCT
+              t.id,
+              t.titulo,
+              t.descripcion,
+              t.fecha_publicacion,
+              t.fecha_limite,
+              t.puntaje_maximo,
+              t.estado AS estado_tarea,
+              c.nombre AS curso,
+              co.titulo AS contenido,
+              a.periodo_id,
+              e.id AS entrega_id,
+              e.fecha_entrega,
+              e.es_tardia,
+              COALESCE(e.estado, 'pendiente') AS estado_entrega,
+              e.calificacion,
+              e.observaciones_maestro,
+              e.fecha_calificacion
+            FROM asignaciones_docente a
+            INNER JOIN tareas t
+              ON t.asignacion_docente_id = a.id
+              AND t.estado IN ('publicada', 'cerrada')
+            INNER JOIN cursos c ON c.id = a.curso_id
+            LEFT JOIN contenidos co ON co.id = t.contenido_id
+            LEFT JOIN entregas_tarea e
+              ON e.tarea_id = t.id
+              AND e.alumno_id = ?
+            WHERE a.grado_id = ?
+              AND a.seccion_id = ?
+              AND a.periodo_id = ?
+              AND a.activo = 1
+            ORDER BY
+              CASE WHEN e.id IS NULL THEN 0 ELSE 1 END ASC,
+              t.fecha_limite IS NULL ASC,
+              t.fecha_limite ASC,
+              t.id DESC
+          `,
+          [
+            alumnoId,
+            matriculaSeleccionada.grado_id,
+            matriculaSeleccionada.seccion_id,
+            matriculaSeleccionada.periodo_id
+          ]
+        )
+
+        tareas = tareasRows.map((row) => ({
+          ...row,
+          id: Number(row.id),
+          periodo_id: Number(row.periodo_id),
+          puntaje_maximo: Number(row.puntaje_maximo) || 0,
+          entrega_id: row.entrega_id === null ? null : Number(row.entrega_id),
+          es_tardia: Boolean(Number(row.es_tardia)),
+          calificacion: row.calificacion === null ? null : Number(row.calificacion)
+        }))
+      }
+
+      const promedioEvaluaciones = ultimasEvaluaciones.length
+        ? Math.round(
+            (ultimasEvaluaciones.reduce(
+              (total, item) => total + Number(item.porcentaje || 0),
+              0
+            ) /
+              ultimasEvaluaciones.length) *
+              100
+          ) / 100
+        : null
+
+      const actividadesCompletadas = progreso.filter(
+        (item) => item.estado === "completado"
+      ).length
+
+      const totalContenidos = progreso.length
+      const progresoGeneral = totalContenidos
+        ? Math.round((actividadesCompletadas / totalContenidos) * 10000) / 100
+        : 0
+
+      const tareasPendientes = tareas.filter(
+        (item) => item.estado_entrega === "pendiente"
+      ).length
+
+      const tareasEntregadas = tareas.filter(
+        (item) => item.estado_entrega === "entregada"
+      ).length
+
+      const tareasCalificadas = tareas.filter(
+        (item) => item.estado_entrega === "calificada"
+      ).length
+
+      return res.json({
+        status: "ok",
+        alumno,
+        periodo_seleccionado: periodoSeleccionado,
+        matricula_actual: matriculaSeleccionada,
+        resumen: {
+          promedio_evaluaciones: promedioEvaluaciones,
+          actividades_completadas: actividadesCompletadas,
+          total_contenidos: totalContenidos,
+          progreso_general: progresoGeneral,
+          tareas_asignadas: tareas.length,
+          tareas_pendientes: tareasPendientes,
+          tareas_entregadas: tareasEntregadas,
+          tareas_calificadas: tareasCalificadas,
+          necesita_refuerzo:
+            promedioEvaluaciones !== null && promedioEvaluaciones < 60
+        },
+        progreso,
+        evaluaciones,
+        tareas,
+        historial_matriculas: matriculas,
+        nota_evaluaciones:
+          "Las evaluaciones actuales no guardan periodo_id; por eso el historial de evaluaciones se muestra de forma global. Las tareas y matrículas sí respetan el periodo seleccionado."
+      })
+    } catch (error) {
+      return responderError(
+        res,
+        error,
+        "Error al obtener la ficha académica del alumno"
+      )
+    }
+  })
+
   return router
 }
 

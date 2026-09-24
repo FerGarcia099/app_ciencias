@@ -4,6 +4,7 @@ import Login from "./App"
 import Panel from "./pages/Panel"
 import PanelAlumno from "./pages/PanelAlumno"
 import ListaAlumnos from "./pages/ListaAlumnos"
+import AlumnoDetalle from "./pages/AlumnoDetalle"
 import Maestros from "./pages/Maestros"
 import Usuarios from "./pages/Usuarios"
 import Contenidos from "./pages/Contenidos"
@@ -43,6 +44,15 @@ function AppRouter() {
         element={
           <ProtectedRoute rolesPermitidos={["maestro"]}>
             <ListaAlumnos />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/alumnos/:id"
+        element={
+          <ProtectedRoute rolesPermitidos={["maestro"]}>
+            <AlumnoDetalle />
           </ProtectedRoute>
         }
       />

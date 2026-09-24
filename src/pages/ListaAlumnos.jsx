@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from "react"
 import axios from "axios"
+import { useNavigate } from "react-router-dom"
 import Sidebar from "../components/Sidebar"
 import { API_URL } from "../config"
 import "./AdminModules.css"
 
 function ListaAlumnos() {
+  const navigate = useNavigate()
+
   const [alumnos, setAlumnos] = useState([])
   const [resumen, setResumen] = useState({
     total_alumnos: 0,
@@ -25,7 +28,6 @@ function ListaAlumnos() {
   const [buscar, setBuscar] = useState("")
   const [cargando, setCargando] = useState(true)
   const [mensajeError, setMensajeError] = useState("")
-  const [alumnoSeleccionado, setAlumnoSeleccionado] = useState(null)
 
   useEffect(() => {
     cargarDashboard()
@@ -426,9 +428,9 @@ function ListaAlumnos() {
                               <button
                                 type="button"
                                 className="alumno-btn-resumen"
-                                onClick={() => setAlumnoSeleccionado(alumno)}
+                                onClick={() => navigate(`/alumnos/${alumno.id}`)}
                               >
-                                👁 Ver resumen
+                                👁 Ver ficha
                               </button>
                             </td>
                           </tr>
@@ -452,80 +454,6 @@ function ListaAlumnos() {
         </main>
       </div>
 
-      {alumnoSeleccionado && (
-        <div
-          className="usuario-modal-backdrop"
-          onMouseDown={(e) => {
-            if (e.target === e.currentTarget) {
-              setAlumnoSeleccionado(null)
-            }
-          }}
-        >
-          <section className="usuario-modal alumno-resumen-modal">
-            <div className="admin-form-title">
-              <div className="admin-form-icon">👦</div>
-              <div>
-                <small>RESUMEN DEL ESTUDIANTE</small>
-                <h2>{alumnoSeleccionado.nombre}</h2>
-                <p>@{alumnoSeleccionado.usuario}</p>
-              </div>
-            </div>
-
-            <div className="alumno-resumen-grid">
-              <article>
-                <span>Matrícula</span>
-                <strong>
-                  {alumnoSeleccionado.matricula_id
-                    ? `${alumnoSeleccionado.grado} · ${alumnoSeleccionado.seccion}`
-                    : "Sin matrícula"}
-                </strong>
-              </article>
-
-              <article>
-                <span>Promedio</span>
-                <strong>
-                  {porcentaje(alumnoSeleccionado.promedio_evaluaciones)}
-                </strong>
-              </article>
-
-              <article>
-                <span>Progreso</span>
-                <strong>{porcentaje(alumnoSeleccionado.progreso)}</strong>
-              </article>
-
-              <article>
-                <span>Actividades completadas</span>
-                <strong>{alumnoSeleccionado.actividades_completadas}</strong>
-              </article>
-
-              <article>
-                <span>Tareas asignadas</span>
-                <strong>{alumnoSeleccionado.tareas_asignadas}</strong>
-              </article>
-
-              <article>
-                <span>Tareas pendientes</span>
-                <strong>{alumnoSeleccionado.tareas_pendientes}</strong>
-              </article>
-            </div>
-
-            <div className="alumno-resumen-nota">
-              La ficha completa con evaluaciones, tareas e historial académico se
-              agregará en la Fase 3.
-            </div>
-
-            <div className="admin-actions">
-              <button
-                type="button"
-                className="admin-primary"
-                onClick={() => setAlumnoSeleccionado(null)}
-              >
-                Cerrar
-              </button>
-            </div>
-          </section>
-        </div>
-      )}
     </>
   )
 }
