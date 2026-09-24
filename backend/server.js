@@ -618,10 +618,11 @@ app.post("/alumnos", autorizarRoles("maestro"), (req, res) => {
 
 app.get("/alumnos", autorizarRoles("maestro"), (req, res) => {
   const sql = `
-    SELECT id, nombre, usuario, rol
+    SELECT id, nombre, usuario, rol, activo
     FROM usuarios
     WHERE LOWER(TRIM(rol)) = 'alumno'
-    ORDER BY id DESC
+      AND activo = 1
+    ORDER BY nombre ASC
   `
 
   conexion.query(sql, (err, result) => {
@@ -643,10 +644,11 @@ app.get("/alumnos", autorizarRoles("maestro"), (req, res) => {
 
 app.get("/maestros", autorizarRoles("maestro"), (req, res) => {
   const sql = `
-    SELECT id, nombre, usuario, rol
+    SELECT id, nombre, usuario, rol, activo
     FROM usuarios
     WHERE LOWER(TRIM(rol)) = 'maestro'
-    ORDER BY id DESC
+      AND activo = 1
+    ORDER BY nombre ASC
   `
 
   conexion.query(sql, (err, result) => {
@@ -1885,6 +1887,7 @@ app.get("/seguimiento", autorizarRoles("maestro"), (req, res) => {
         LIMIT 1
       )
     WHERE LOWER(TRIM(u.rol)) = 'alumno'
+      AND u.activo = 1
       AND c.activo = 1
     ORDER BY c.titulo, u.nombre
   `
@@ -1931,6 +1934,7 @@ app.get(
           SELECT COUNT(*)
           FROM usuarios
           WHERE LOWER(TRIM(rol)) = 'alumno'
+            AND activo = 1
         ) AS total_alumnos,
 
         (
@@ -2004,6 +2008,7 @@ app.get(
 
       WHERE
         LOWER(TRIM(u.rol)) = 'alumno'
+        AND u.activo = 1
         AND c.activo = 1
     `
 
@@ -2113,6 +2118,7 @@ app.get(
       WHERE
         c.activo = 1
         AND LOWER(TRIM(u.rol)) = 'alumno'
+        AND u.activo = 1
 
       GROUP BY
         c.id,
@@ -2228,6 +2234,7 @@ app.get(
 
       WHERE
         LOWER(TRIM(u.rol)) = 'alumno'
+        AND u.activo = 1
         AND c.activo = 1
 
       GROUP BY

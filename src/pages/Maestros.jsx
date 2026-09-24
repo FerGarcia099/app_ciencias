@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
-import { useNavigate } from "react-router-dom"
 import Sidebar from "../components/Sidebar"
 import { API_URL } from "../config"
 import "./AdminModules.css"
 
 function Maestros() {
-  const navigate = useNavigate()
   const [maestros, setMaestros] = useState([])
 
   useEffect(() => {
@@ -21,7 +19,10 @@ function Maestros() {
       })
       .catch((error) => {
         console.error(error)
-        alert("Error al obtener la lista de maestros")
+        alert(
+          error.response?.data?.mensaje ||
+            "Error al obtener la lista de docentes"
+        )
       })
   }
 
@@ -30,161 +31,89 @@ function Maestros() {
       <Sidebar />
 
       <div className="admin-page">
-
-        <div className="admin-deco admin-deco-1">
-          📐
-        </div>
-
-        <div className="admin-deco admin-deco-2">
-          📖
-        </div>
-
-        <div className="admin-deco admin-deco-3">
-          🎓
-        </div>
+        <div className="admin-deco admin-deco-1">📐</div>
+        <div className="admin-deco admin-deco-2">📖</div>
+        <div className="admin-deco admin-deco-3">🎓</div>
 
         <main className="admin-container">
-
           <section className="admin-header">
-
             <div className="admin-header-info">
-
-              <div className="admin-header-icon">
-                👨‍🏫
-              </div>
+              <div className="admin-header-icon">👨‍🏫</div>
 
               <div className="admin-header-text">
-
-                <small>
-                  Equipo docente
-                </small>
-
-                <h1>
-                  Maestros registrados
-                </h1>
-
+                <small>Gestión escolar</small>
+                <h1>Docentes</h1>
                 <p>
-                  Consulta los docentes con acceso
-                  administrativo al sistema.
+                  Consulta el personal docente activo. Las cuentas y contraseñas
+                  se administran desde Usuarios.
                 </p>
-
               </div>
-
             </div>
 
             <div className="admin-counter">
-              <strong>
-                {maestros.length}
-              </strong>
-
-              <span>
-                MAESTROS
-              </span>
+              <strong>{maestros.length}</strong>
+              <span>DOCENTES ACTIVOS</span>
             </div>
-
           </section>
 
           <section className="admin-card">
-
             <div className="admin-card-header">
-
-              <small>
-                👨‍🏫 PERSONAL DOCENTE
-              </small>
-
-              <h2>
-                Lista de maestros
-              </h2>
-
+              <small>👨‍🏫 PERSONAL DOCENTE</small>
+              <h2>Lista de docentes</h2>
               <p>
-                Usuarios registrados con rol maestro.
+                En una siguiente fase este módulo mostrará cursos, grados,
+                secciones y grupos asignados a cada docente.
               </p>
-
             </div>
 
-            <button
-              className="admin-back"
-              onClick={() =>
-                navigate("/panel")
-              }
-            >
-              ← Regresar al panel
-            </button>
-
             <div className="admin-table-wrapper">
-
               <table className="admin-table">
-
                 <thead>
                   <tr>
-                    <th>Maestro</th>
+                    <th>Docente</th>
                     <th>Usuario</th>
-                    <th>Rol</th>
+                    <th>Tipo</th>
                   </tr>
                 </thead>
 
                 <tbody>
-
                   {maestros.length > 0 ? (
                     maestros.map((maestro) => (
-
                       <tr key={maestro.id}>
-
                         <td>
                           <div className="persona-info">
-
-                            <div className="persona-avatar">
-                              👨‍🏫
-                            </div>
+                            <div className="persona-avatar">👨‍🏫</div>
 
                             <span className="persona-nombre">
                               {maestro.nombre}
                             </span>
-
                           </div>
                         </td>
 
-                        <td>
-                          @{maestro.usuario}
-                        </td>
+                        <td>@{maestro.usuario}</td>
 
                         <td>
                           <span className="badge-admin badge-maestro">
-                            {maestro.rol || "Maestro"}
+                            Docente
                           </span>
                         </td>
-
                       </tr>
-
                     ))
                   ) : (
-
                     <tr>
                       <td colSpan="3">
-
                         <div className="admin-empty">
-                          <div className="admin-empty-icon">
-                            📭
-                          </div>
-
-                          No hay maestros registrados
+                          <div className="admin-empty-icon">📭</div>
+                          No hay docentes activos registrados
                         </div>
-
                       </td>
                     </tr>
-
                   )}
-
                 </tbody>
-
               </table>
-
             </div>
-
           </section>
-
         </main>
-
       </div>
     </>
   )

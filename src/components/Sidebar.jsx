@@ -23,13 +23,17 @@ function Sidebar() {
         </div>
       </div>
 
-      <div className="sidebar-separador">MENÚ PRINCIPAL</div>
-
       <nav className="sidebar-nav">
+        <div className="sidebar-separador">INICIO</div>
+
         <NavLink to="/panel" className={claseLink}>
           <span className="sidebar-icon">🏠</span>
-          <span>Inicio</span>
+          <span>Dashboard</span>
         </NavLink>
+
+        <div className="sidebar-separador sidebar-separador-interno">
+          GESTIÓN ESCOLAR
+        </div>
 
         <NavLink to="/alumnos" className={claseLink}>
           <span className="sidebar-icon">👦</span>
@@ -38,20 +42,22 @@ function Sidebar() {
 
         <NavLink to="/maestros" className={claseLink}>
           <span className="sidebar-icon">👨‍🏫</span>
-          <span>Maestros</span>
+          <span>Docentes</span>
         </NavLink>
 
         <NavLink to="/usuarios" className={claseLink}>
           <span className="sidebar-icon">👥</span>
-          <span>Crear usuarios</span>
+          <span>Usuarios</span>
         </NavLink>
+
+        <div className="sidebar-separador sidebar-separador-interno">
+          APRENDIZAJE
+        </div>
 
         <NavLink to="/contenidos" className={claseLink}>
           <span className="sidebar-icon">📚</span>
           <span>Contenidos</span>
         </NavLink>
-
-        <div className="sidebar-separador sidebar-separador-interno">APRENDIZAJE</div>
 
         <NavLink to="/tareas" className={claseLink}>
           <span className="sidebar-icon">📝</span>
@@ -68,35 +74,37 @@ function Sidebar() {
           <span>Recursos</span>
         </NavLink>
 
+        <div className="sidebar-separador sidebar-separador-interno">
+          SEGUIMIENTO
+        </div>
+
         <NavLink to="/seguimiento" className={claseLink}>
           <span className="sidebar-icon">📊</span>
           <span>Seguimiento</span>
         </NavLink>
-
-        <div className="sidebar-separador sidebar-separador-interno">INTELIGENCIA ARTIFICIAL</div>
 
         <NavLink to="/asistente-ia" className={claseLink}>
           <span className="sidebar-icon">🤖</span>
           <span>Asistente IA</span>
         </NavLink>
 
-        <div className="sidebar-separador sidebar-separador-interno">CONFIGURACIÓN</div>
+        <div className="sidebar-separador sidebar-separador-interno">
+          CONFIGURACIÓN
+        </div>
 
         <NavLink to="/parametrizaciones" className={claseLink}>
           <span className="sidebar-icon">⚙️</span>
           <span>Parametrizaciones</span>
         </NavLink>
 
-        <div className="sidebar-separador sidebar-separador-interno">GESTIÓN ACADÉMICA</div>
-
         <NavLink to="/matriculas" className={claseLink}>
-          <span className="sidebar-icon">📝</span>
+          <span className="sidebar-icon">🎓</span>
           <span>Matrículas</span>
         </NavLink>
 
         <NavLink to="/asignaciones-docente" className={claseLink}>
           <span className="sidebar-icon">🧑‍🏫</span>
-          <span>Asignaciones</span>
+          <span>Asignaciones docentes</span>
         </NavLink>
       </nav>
 

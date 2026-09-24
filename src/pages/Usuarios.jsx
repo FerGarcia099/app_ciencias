@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
-import { useNavigate } from "react-router-dom"
 import Sidebar from "../components/Sidebar"
 import { API_URL } from "../config"
 import "./AdminModules.css"
 
 function Usuarios() {
-  const navigate = useNavigate()
-
   const [nombre, setNombre] = useState("")
   const [usuario, setUsuario] = useState("")
   const [password, setPassword] = useState("")
@@ -300,7 +297,7 @@ function Usuarios() {
               <div className="admin-header-text">
                 <small>Administración de accesos</small>
                 <h1>Usuarios</h1>
-                <p>Crea y administra cuentas para alumnos y maestros.</p>
+                <p>Crea y administra cuentas para alumnos y docentes.</p>
               </div>
             </div>
 
@@ -400,14 +397,6 @@ function Usuarios() {
                     ✖ Cancelar edición
                   </button>
                 )}
-
-                <button
-                  type="button"
-                  className="admin-secondary"
-                  onClick={() => navigate("/panel")}
-                >
-                  ← Regresar
-                </button>
               </div>
             </section>
 
@@ -416,7 +405,7 @@ function Usuarios() {
               <div className="admin-card-header">
                 <small>📋 USUARIOS</small>
                 <h2>Usuarios registrados</h2>
-                <p>Alumnos y maestros del sistema.</p>
+                <p>Alumnos y docentes del sistema.</p>
               </div>
 
               <div className="admin-table-wrapper">
